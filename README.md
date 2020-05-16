@@ -13,7 +13,7 @@ Es soll eine Desktop-Applikation entwickelt werden, mit der man Videos konvertie
 ist für Einzel-Benutzer gedacht und unterstützt die einfache Umwandlung von Video-Dateien in alle gängige Formate.
 
 ### Anforderungen
-* Die Anwendung soll im Hintergrund FFmpeg verwenden.
+* Die Anwendung soll im Hintergrund [FFmpeg](https://ffmpeg.org/) verwenden.
 * Die GUI soll es ermöglichen alle gängigen Einstellungen vorzunehmen, woraufhin die Verarbeitung des Videos mit
 den jeweiligen getroffenen Optionen durchgeführt wird.
 * Es soll vordefinierte Profile geben die optimierte Einstellungen für Android Handys, Desktop PCs etc. angeben.
