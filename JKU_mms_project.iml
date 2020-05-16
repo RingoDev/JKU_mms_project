@@ -7,7 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="lib" level="project" />
     <orderEntry type="library" name="net.bramp.ffmpeg:ffmpeg:0.6.2" level="project" />
-    <orderEntry type="library" name="org.openjfx:javafx-fxml:11.0.1" level="project" />
   </component>
 </module>
