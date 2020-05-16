@@ -34,8 +34,8 @@ längeren Zeitraum verarbeitet werden.
 zum Video verarbeiten verwenden kann
 * Der Benutzer kann Audiospuren aus dem Video entfernen/ neue hinzufügen.
 #### Nicht-Ziele
-* Der Benutzer kann nicht mittels des Tools Videos zusammenschneiden.
-* Der Benutzer kann nicht Videos bearbeiten (z.B. neue Animationen hinzufügen).
+* Der Benutzer kann **nicht** mittels des Tools Videos zusammenschneiden.
+* Der Benutzer kann **keine** Videos bearbeiten (z.B. neue Animationen hinzufügen).
 ### Realisierung
 Das Projekt wird in JAVA realisiert und für die GUI wird JavaFX benutzt. Um die Kommunikation zwischen FFmpeg
 und dem Programm zu realisieren wird der [ffmpeg-cli-wrapper](https://github.com/bramp/ffmpeg-cli-wrapper) verwendet. Die Profile werden in einer [SQLite-Datenbank](https://www.sqlite.org/index.html) lokal auf dem Rechner gespeichert und sollen auch
