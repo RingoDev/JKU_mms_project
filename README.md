@@ -38,6 +38,6 @@ zum Video verarbeiten verwenden kann
 * Der Benutzer kann nicht Videos bearbeiten (z.B. neue Animationen hinzufügen).
 ### Realisierung
 Das Projekt wird in JAVA realisiert und für die GUI wird JavaFX benutzt. Um die Kommunikation zwischen FFmpeg
-und dem Programm zu realisieren wird der ”ffmpeg-cli-wrapper” verwendet (https://github.com/bramp/ffmpeg-cli-wrapper). Die Profile werden in einer SQLite Datenbank Lokal auf dem Rechner gespeichert und sollen auch
+und dem Programm zu realisieren wird der [”ffmpeg-cli-wrapper”](https://github.com/bramp/ffmpeg-cli-wrapper) verwendet. Die Profile werden in einer SQLite Datenbank Lokal auf dem Rechner gespeichert und sollen auch
 importierbar / exportierbar sein. Zur Versionskontrolle und gemeinsamen Zusammenarbeit soll GitHub verwendet
 werden.
