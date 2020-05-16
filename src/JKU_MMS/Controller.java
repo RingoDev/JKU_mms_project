@@ -26,20 +26,25 @@ public class Controller {
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
     private final FFmpegExecutor fFmpegExecutor;
+    /* .env must contain Path to ffmpeg install
+     * Windows example: C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin
+     * Linux example: /usr/bin/ffmpeg/bin
+     */
     public final String FFMPEG_PATH = Files.readString(Paths.get(".env"));
+
 
 
     public Controller() throws IOException {
         this.model = new Model();
         try {
-            this.ffmpeg = new FFmpeg(FFMPEG_PATH); // TODO: set with value from a menu
+            this.ffmpeg = new FFmpeg(FFMPEG_PATH+"/ffmpeg.exe"); // TODO: set with value from a menu
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffmpeg required for controller");
         }
 
         try {
-            this.ffprobe = new FFprobe(FFMPEG_PATH); // TODO: set with value from a menu
+            this.ffprobe = new FFprobe(FFMPEG_PATH+"/ffprobe.exe"); // TODO: set with value from a menu
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffprobe required for controller");
