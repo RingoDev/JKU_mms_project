@@ -19,8 +19,8 @@ den jeweiligen getroffenen Optionen durchgeführt wird.
 * Es soll vordefinierte Profile geben die optimierte Einstellungen für Android Handys, Desktop PCs etc. angeben.
 Solche Profile sollen auch selber angelegt, gespeichert und verändert werden können.
 * Es soll möglich sein, mehrere Aufträge in einer Warteschlange abzulegen, die z.B. über die Nacht verarbeitet werden
-können. Ein Aurag besteht aus einem Video und bestimmten Einstellungen mit denen es verarbeitet werden soll.
-Der Benutzer kann jederzeit neue Aufträge zu der Warteschlange hinzufügen/ entfernen/ stoppen etc.
+können. Ein Auftrag besteht aus einem Video und bestimmten Einstellungen mit denen es verarbeitet werden soll. Der Benutzer kann jederzeit neue Aufträge zu der Warteschlange hinzufügen/ entfernen/ stoppen etc.
+
 ### Ziele
 * Der Benutzer kann mittels der GUI ein Video von einem Format zu einem anderen Konvertieren.
 * Der Benutzer kann eine Warteschlange erstellen, in der zu jedem Video Einstellungen definiert sind, die über einen
