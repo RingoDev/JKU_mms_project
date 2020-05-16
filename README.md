@@ -2,7 +2,7 @@
 
 ## Videokonvertierung
 
-Contributors: 
+**Contributors:** 
 * Thomas Grininger
 * Alexander Höbart
 * Lukas Wagner
@@ -12,7 +12,7 @@ Contributors:
 Es soll eine Desktop-Applikation entwickelt werden, mit der man Videos konvertieren und komprimieren kann. Diese Anwendung
 ist für Einzel-Benutzer gedacht und unterstützt die einfach Umwandlung von Video-Dateien in alle gängige Formate.
 
-###Anforderungen
+### Anforderungen
 * Die Anwendung soll im Hintergrund FFmpeg verwenden.
 * Die GUI soll es ermöglichen alle gängigen Einstellungen vorzunehmen, woraufhin die Verarbeitung des Videos mit
 den jeweiligen getroenen Optionen durchgeführt wird.
