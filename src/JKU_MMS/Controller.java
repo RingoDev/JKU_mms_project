@@ -12,9 +12,14 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 
+import org.apache.commons.lang3.SystemUtils;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Controller {
@@ -28,23 +33,37 @@ public class Controller {
     private final FFmpegExecutor fFmpegExecutor;
     /* .env must contain Path to ffmpeg install
      * Windows example: C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin
-     * Linux example: /usr/bin/ffmpeg/bin
+     * Linux example: /usr/bin/ffmpeg
      */
-    public final String FFMPEG_PATH = Files.readString(Paths.get(".env"));
-
-
+    public String ffmpeg_path;
+    public String ffprobe_path;
 
     public Controller() throws IOException {
+        if (SystemUtils.IS_OS_LINUX) {
+            // TODO: set with whereis command
+            //ProcessBuilder ffmpegWh = new ProcessBuilder("whereis", "ffmpeg");
+            //ProcessBuilder ffprobeWh = new ProcessBuilder("whereis", "ffmpeg");
+
+            ffmpeg_path = "/usr/bin/ffmpeg";
+            ffprobe_path = "/usr/bin/ffprobe";
+        } else {
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    Paths.get(".env").toFile()));
+            ffmpeg_path = reader.readLine();
+            ffprobe_path = reader.readLine();
+            reader.close();
+        }
+
         this.model = new Model();
         try {
-            this.ffmpeg = new FFmpeg(FFMPEG_PATH+"/ffmpeg.exe"); // TODO: set with value from a menu
+            this.ffmpeg = new FFmpeg(ffmpeg_path);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffmpeg required for controller");
         }
 
         try {
-            this.ffprobe = new FFprobe(FFMPEG_PATH+"/ffprobe.exe"); // TODO: set with value from a menu
+            this.ffprobe = new FFprobe(ffprobe_path);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffprobe required for controller");
