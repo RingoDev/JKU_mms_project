@@ -93,6 +93,7 @@ public class Controller {
             FFmpegBuilder builder = new FFmpegBuilder().addInput(inputFile.getText());
 
             // TODO: add settings etc...
+            // TODO: read current settings from model and apply to builder
 
             Task newTask = new Task(builder);
             this.model.tasks.add(newTask);
