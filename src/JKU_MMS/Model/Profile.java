@@ -9,16 +9,16 @@ public class Profile {
     private boolean removeAudio;
 
     // AUDIO SETTING
-    private String setAudioCodec = "copy";
-    private int setAudioSampleRate;
-    private int setAudioBitRate;
+    private String audioCodec = "copy";
+    private int audioSampleRate;
+    private int audioBitRate;
 
     // VIDEO SETTINGS
     private String setVideoCodec = "copy";
     private double setVideoFrameRate;
     private int videoWidth;
-    private int getVideoHeight;
-    private String setFormat;  // "mp4, mkv...."
+    private int videoHeight;
+    private String format;  // "mp4, mkv...."
 
     // all encoded videos with this profile will be save in this directory
     private Path outputPath;
