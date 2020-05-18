@@ -18,22 +18,27 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Controller {
 
     private final Model model;
     public TextField inputFile;
+
+    // opens a file chooser and lets the user choose a video file
     public Button fileChooser;
+
+    // adds a new tasks to the queue
+    public Button addTask;
+
+    // starts processing all tasks enqueued in mode.tasks
     public Button process;
+
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
     private final FFmpegExecutor fFmpegExecutor;
     /* .env must contain Path to ffmpeg install
      * Windows example: C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin
-     * Linux example: /usr/bin/ffmpeg
      */
     public String ffmpeg_path;
     public String ffprobe_path;
@@ -60,6 +65,7 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffmpeg required for controller");
+            // TODO: handle exception and open a popup for the user to set a path
         }
 
         try {
@@ -67,6 +73,7 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffprobe required for controller");
+            // TODO: handle exception and open a popup for the user to set a path
         }
 
         if (ffmpeg != null && ffprobe != null) {
@@ -89,7 +96,7 @@ public class Controller {
             }
         });
 
-        process.setOnAction(actionEvent -> {
+        addTask.setOnAction(actionEvent -> {
             FFmpegBuilder builder = new FFmpegBuilder().addInput(inputFile.getText());
 
             // TODO: add settings etc...
@@ -97,6 +104,10 @@ public class Controller {
 
             Task newTask = new Task(builder);
             this.model.tasks.add(newTask);
+        });
+
+        process.setOnAction(actionEvent -> {
+            // TODO: start processing all Tasks in model.tasks
         });
     }
 
