@@ -2,14 +2,13 @@ package JKU_MMS;
 
 import JKU_MMS.Model.Profile;
 
-
 import java.nio.file.Path;
 import java.rmi.UnexpectedException;
 import java.sql.*;
 
 public class SQLite {
 
-    private static final String DB_PATH = "./data/profiles.db";
+    private final static String DB_PATH = "./data/profiles.db";
     private final static String DB_URL = "jdbc:sqlite:" + DB_PATH;
 
     /**
@@ -35,28 +34,49 @@ public class SQLite {
         throw new UnexpectedException("Couldn't get a Connection to the Database");
     }
 
-    /**
-     * Wrapper class for saving premade profiles
-     */
-    public void saveCustomProfile(Profile profile) throws UnexpectedException, SQLException {
-        saveProfile(profile, true);
+    public static void addSampleProfile() throws SQLException {
+        //TODO query to see if profile with name has been added already
+//        Profile profile = new Profile("Sample");
+//        profile.setOutputPath(Path.of("C:\\Users\\Thomas\\IntellijProjects\\JKU_mms_project\\output"));
+//        profile.setFormat("mp4");
+//
+//        savePremadeProfile(profile);
     }
 
     /**
-     * Wrapper class for saving custom profiles
+     * Wrapper method for saving premade profiles
+     * @param profile profile to save
+     * @return true if saving was successful
+     * @throws SQLException Is thrown if Database query was unsuccessful
      */
-    public void savePremadeProfile(Profile profile) throws UnexpectedException, SQLException {
-        saveProfile(profile, false);
+    public static boolean saveCustomProfile(Profile profile) throws SQLException {
+        return saveProfile(profile, true);
     }
 
-    private void saveProfile(Profile profile, boolean custom) throws SQLException, UnexpectedException {
+    /**
+     * Wrapper method for saving custom profiles
+     * @param profile profile to save
+     * @return true if saving was successful
+     * @throws SQLException Is thrown if Database query was unsuccessful
+     */
+    public static boolean savePremadeProfile(Profile profile) throws SQLException {
+        return saveProfile(profile, false);
+    }
 
-        Connection conn = getConnection();
+    /**
+     * method to save profiles to database
+     * @param profile profile to save
+     * @param custom  true if it is a custom profile
+     * @return true if saving was successful
+     * @throws SQLException Is thrown if Database query was unsuccessful
+     */
+    private static boolean saveProfile(Profile profile, boolean custom) throws SQLException {
 
+        Connection conn = Main.conn;
 
         String sql = "INSERT INTO profiles (Name,AudioCodec,AudioSampleRate,AudioBitRate,VideoCodec," +
                 "VideoFrameRate,VideoWidth,VideoHeight,Format,OutputPath,RemoveSubtitles,RemoveAudio,Custom)" +
-                " VALUES (?,?,?,?,?,?,?,?,?, ?, ?, ?,?)";
+                " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, profile.getName());
@@ -73,11 +93,11 @@ public class SQLite {
         statement.setInt(12, profile.removeAudio() ? 1 : 0);
         statement.setInt(13, custom ? 1 : 0);
 
-
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
             System.out.println("A new profile was inserted successfully!");
         }
+        return true;
     }
 
     public String[] getProfileList() {
@@ -87,6 +107,11 @@ public class SQLite {
 
     public Profile getProfile(String name) {
         //TODO implement query to return Profile from DB with specified name
+        return null;
+    }
+
+    public Profile deleteProfile(String name) {
+        //TODO implement query to delete Profile from DB with specified name
         return null;
     }
 }

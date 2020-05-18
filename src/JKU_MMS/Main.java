@@ -12,6 +12,8 @@ import java.sql.SQLException;
 
 public class Main extends Application {
 
+    public static Connection conn;
+
     public static Stage primaryStage;
 
     @Override
@@ -33,8 +35,9 @@ public class Main extends Application {
 
 
     public static void main(String[] args) throws UnexpectedException, SQLException {
-        Connection sqlite = SQLite.getConnection();
+        Connection conn = SQLite.getConnection();
+        SQLite.addSampleProfile();
         launch(args);
-        sqlite.close();
+        conn.close();
     }
 }

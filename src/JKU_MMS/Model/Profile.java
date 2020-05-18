@@ -5,21 +5,21 @@ import java.nio.file.Path;
 public class Profile {
     private final String name;
 
-    private boolean removeSubtitles;
-    private boolean removeAudio;
+    private boolean removeSubtitles = false;
+    private boolean removeAudio = false;
 
     // AUDIO SETTING
     private String audioCodec = "copy";
-    private int audioSampleRate;
-    private int audioBitRate;
+    private int audioSampleRate = -1;
+    private int audioBitRate = -1;
 
     // VIDEO SETTINGS
     private String VideoCodec = "copy";
-    private double VideoFrameRate;
-    private int videoWidth;
-    private int videoHeight;
+    private double VideoFrameRate = -1;
+    private int videoWidth = -1;
+    private int videoHeight = -1;
     private String format;  // "mp4, mkv...."
-    // all encoded videos with this profile will be save in this directory
+    // all encoded videos with this profile will be saved in this directory
     private Path outputPath;
 
     public Profile(String name) {
