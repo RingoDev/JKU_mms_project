@@ -9,11 +9,17 @@ import java.sql.*;
 
 public class SQLite {
 
+    private static final String DB_PATH = "./data/profiles.db";
+    private final static String DB_URL = "jdbc:sqlite:" + DB_PATH;
+
+    /**
+     * builds a Connection to the SQLite Database
+     */
+
     public static Connection getConnection() throws UnexpectedException {
         try {
             Class.forName("org.sqlite.JDBC");
-            String dbURL = "jdbc:sqlite:./data/profiles.db";
-            Connection conn = DriverManager.getConnection(dbURL);
+            Connection conn = DriverManager.getConnection(DB_URL);
             if (conn != null) {
                 System.out.println("Connected to the database");
                 DatabaseMetaData dm = conn.getMetaData();
@@ -29,14 +35,28 @@ public class SQLite {
         throw new UnexpectedException("Couldn't get a Connection to the Database");
     }
 
-    public void saveProfile(Profile profile) throws SQLException, UnexpectedException {
+    /**
+     * Wrapper class for saving premade profiles
+     */
+    public void saveCustomProfile(Profile profile) throws UnexpectedException, SQLException {
+        saveProfile(profile, true);
+    }
+
+    /**
+     * Wrapper class for saving custom profiles
+     */
+    public void savePremadeProfile(Profile profile) throws UnexpectedException, SQLException {
+        saveProfile(profile, false);
+    }
+
+    private void saveProfile(Profile profile, boolean custom) throws SQLException, UnexpectedException {
 
         Connection conn = getConnection();
 
 
         String sql = "INSERT INTO profiles (Name,AudioCodec,AudioSampleRate,AudioBitRate,VideoCodec," +
-                "VideoFrameRate,VideoWidth,VideoHeight,Format,OutputPath,RemoveSubtitles,RemoveAudio)" +
-                " VALUES (?,?,?,?,?,?,?,?,?, ?, ?, ?)";
+                "VideoFrameRate,VideoWidth,VideoHeight,Format,OutputPath,RemoveSubtitles,RemoveAudio,Custom)" +
+                " VALUES (?,?,?,?,?,?,?,?,?, ?, ?, ?,?)";
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, profile.getName());
@@ -49,13 +69,24 @@ public class SQLite {
         statement.setInt(8, profile.getVideoHeight());
         statement.setString(9, profile.getFormat());
         statement.setString(10, profile.getOutputPath().toString());
-        statement.setInt(11, profile.removeSubtitles()?1:0);
-        statement.setInt(12, profile.removeAudio()?1:0);
+        statement.setInt(11, profile.removeSubtitles() ? 1 : 0);
+        statement.setInt(12, profile.removeAudio() ? 1 : 0);
+        statement.setInt(13, custom ? 1 : 0);
 
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
             System.out.println("A new profile was inserted successfully!");
         }
+    }
+
+    public String[] getProfileList() {
+        //TODO implement query to look up all profile names;
+        return null;
+    }
+
+    public Profile getProfile(String name) {
+        //TODO implement query to return Profile from DB with specified name
+        return null;
     }
 }
