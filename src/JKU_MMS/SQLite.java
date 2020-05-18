@@ -13,6 +13,8 @@ public class SQLite {
 
     /**
      * builds a Connection to the SQLite Database
+     * @return a Connection object
+     * @throws UnexpectedException if no Connection could be established
      */
 
     public static Connection getConnection() throws UnexpectedException {
@@ -47,7 +49,7 @@ public class SQLite {
      * Wrapper method for saving premade profiles
      * @param profile profile to save
      * @return true if saving was successful
-     * @throws SQLException Is thrown if Database query was unsuccessful
+     * @throws SQLException if Database query was unsuccessful
      */
     public static boolean saveCustomProfile(Profile profile) throws SQLException {
         return saveProfile(profile, true);
@@ -57,7 +59,7 @@ public class SQLite {
      * Wrapper method for saving custom profiles
      * @param profile profile to save
      * @return true if saving was successful
-     * @throws SQLException Is thrown if Database query was unsuccessful
+     * @throws SQLException if Database query was unsuccessful
      */
     public static boolean savePremadeProfile(Profile profile) throws SQLException {
         return saveProfile(profile, false);
@@ -68,7 +70,7 @@ public class SQLite {
      * @param profile profile to save
      * @param custom  true if it is a custom profile
      * @return true if saving was successful
-     * @throws SQLException Is thrown if Database query was unsuccessful
+     * @throws SQLException if Database query was unsuccessful
      */
     private static boolean saveProfile(Profile profile, boolean custom) throws SQLException {
 
