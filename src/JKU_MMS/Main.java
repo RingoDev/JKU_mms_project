@@ -6,6 +6,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.rmi.UnexpectedException;
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class Main extends Application {
 
     public static Stage primaryStage;
@@ -27,7 +31,10 @@ public class Main extends Application {
     }
 
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws UnexpectedException, SQLException {
+        Connection sqlite = SQLite.getConnection();
         launch(args);
+        sqlite.close();
     }
 }
