@@ -12,7 +12,7 @@ public class SQLite {
     public static Connection getConnection() throws UnexpectedException {
         try {
             Class.forName("org.sqlite.JDBC");
-            String dbURL = "jdbc:sqlite:profiles.db";
+            String dbURL = "jdbc:sqlite:./data/profiles.db";
             Connection conn = DriverManager.getConnection(dbURL);
             if (conn != null) {
                 System.out.println("Connected to the database");
@@ -43,14 +43,14 @@ public class SQLite {
         statement.setString(2, profile.getAudioCodec());
         statement.setInt(3, profile.getAudioSampleRate());
         statement.setInt(4, profile.getAudioBitRate());
-        statement.setString(4, profile.getVideoCodec());
-        statement.setDouble(4, profile.getVideoFrameRate());
-        statement.setInt(4, profile.getVideoWidth());
-        statement.setInt(4, profile.getVideoHeight());
-        statement.setString(4, profile.getFormat());
-        statement.setString(4, profile.getOutputPath().toString());
-        statement.setInt(4, profile.removeSubtitles()?1:0);
-        statement.setInt(4, profile.removeAudio()?1:0);
+        statement.setString(5, profile.getVideoCodec());
+        statement.setDouble(6, profile.getVideoFrameRate());
+        statement.setInt(7, profile.getVideoWidth());
+        statement.setInt(8, profile.getVideoHeight());
+        statement.setString(9, profile.getFormat());
+        statement.setString(10, profile.getOutputPath().toString());
+        statement.setInt(11, profile.removeSubtitles()?1:0);
+        statement.setInt(12, profile.removeAudio()?1:0);
 
 
         int rowsInserted = statement.executeUpdate();
