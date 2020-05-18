@@ -37,9 +37,7 @@ public class Controller {
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
     private final FFmpegExecutor fFmpegExecutor;
-    /* .env must contain Path to ffmpeg install
-     * Windows example: C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin
-     */
+
     public String ffmpeg_path;
     public String ffprobe_path;
 
