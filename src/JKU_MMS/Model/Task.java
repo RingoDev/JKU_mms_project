@@ -4,6 +4,7 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.ProgressListener;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class Task {
     private final FFmpegBuilder builder;
@@ -34,5 +35,14 @@ public class Task {
 
     public FFmpegJob getJob() {
         return job;
+    }
+
+    /**
+     * Get progress of this task
+     * @return Returns int between 0-100
+     */
+    public int getProgress() {
+        // TODO: implement
+        throw new NotImplementedException("");
     }
 }
