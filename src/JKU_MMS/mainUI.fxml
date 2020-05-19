@@ -9,64 +9,83 @@
    <children>
       <HBox spacing="10.0">
          <children>
-            <GridPane alignment="center" hgap="10" vgap="10">
-                <VBox spacing="5.0" GridPane.rowIndex="1" />
-               <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                  <children>
-                     <Label text="Label" />
-                        <TextField fx:id="inputFile" prefWidth="150.0" promptText="test.mp4">test.mp4</TextField>
-                        <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
-                  </children>
-                  <padding>
-                     <Insets top="20.0" />
-                  </padding>
-               </VBox>
-               <columnConstraints>
-                  <ColumnConstraints />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints />
-                  <RowConstraints />
-               </rowConstraints>
-            </GridPane>
-            <VBox prefHeight="250.0" prefWidth="295.0" spacing="5.0">
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                <children>
-                  <Label text="Options">
+                  <Label text="Label" />
+                     <TextField fx:id="inputFile" prefWidth="150.0" promptText="test.mp4">test.mp4</TextField>
+                     <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
+               </children>
+               <padding>
+                  <Insets top="20.0" />
+               </padding>
+            </VBox>
+            <BorderPane>
+               <top>
+                  <Label text="Options" BorderPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
-                     <VBox.margin>
-                        <Insets top="20.0" />
-                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
                   </Label>
-                     <ChoiceBox fx:id="chooseProfile" prefWidth="150.0">
-                     <VBox.margin>
-                        <Insets top="5.0" />
-                     </VBox.margin>
-                  </ChoiceBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
+               </top>
+               <center>
+                  <HBox BorderPane.alignment="CENTER">
                      <children>
-                        <Label text="Audiocodec:" />
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <Label text="Choose a Profile: " />
+                                       <ChoiceBox fx:id="chooseProfile" />
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Label text="Audiocodec:" />
+                                    <ChoiceBox prefWidth="150.0" />
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Label text="VideoCodec:" />
+                                    <ChoiceBox prefWidth="150.0" />
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Label text="removeSubtitles:" />
+                                    <RadioButton mnemonicParsing="false">
+                                       <padding>
+                                          <Insets left="30.0" />
+                                       </padding>
+                                    </RadioButton>
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="save profile as:" />
+                                    <TextField />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox>
+                           <children>
+                              <HBox>
+                                 <children>
+                                    <Label text="Choose OutputPath;" />
+                                    <TextField />
+                                    <Button mnemonicParsing="false" text="Button" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
                      </children>
                   </HBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="VideoCodec:" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Label text="removeSubtitles:" />
-                     </children>
-                  </HBox>
-                  <HBox prefHeight="100.0" prefWidth="200.0">
-                     <children>
-                        <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="save profile as:" />
-                        <TextField />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
+               </center>
+            </BorderPane>
          </children>
       </HBox>
       <HBox spacing="5.0">
