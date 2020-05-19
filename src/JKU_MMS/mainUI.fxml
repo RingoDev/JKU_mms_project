@@ -75,20 +75,6 @@
                <Button fx:id="process" prefWidth="150.0" text="Process Queue">Process Queue</Button>
          </children>
       </HBox>
-      <TableView fx:id="taskTable">
-      	 <columns>
-      	 	 <TableColumn fx:id="fileNameCol" prefWidth="250.0" text="File"/>
-      	 	 <TableColumn fx:id="profileNameCol" prefWidth="125.0" text="Profile"/>
-      	 	 <TableColumn fx:id="progressCol" prefWidth="90.0" text="Progress"/>
-      	 </columns>
-      </TableView>
-      <HBox spacing="5.0">
-         <children>
-         	<Button fx:id="startSelectedTask" prefWidth="150.0">Start task</Button>
-        	<Button fx:id="removeSelectedTask" prefWidth="150.0">Remove task</Button>
-        	<Button fx:id="removeFinishedTasks" prefWidth="150.0">Remove all finished tasks</Button>
-         </children>
-      </HBox>
    </children>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

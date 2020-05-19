@@ -9,8 +9,6 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import net.bramp.ffmpeg.FFmpeg;
@@ -45,20 +43,6 @@ public class Controller {
     public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
     // switches screen screen to let the user customize a profile
     public Button createProfile;
-    // starts the selected task
-    public Button startSelectedTask;
-    // removes the selected task
-    public Button removeSelectedTask;
-    // for now the user has to manually remove finished tasks
-    // as a further improvement the model could maybe automatically remove them?
-    public Button removeFinishedTasks;
-    // the table displaying all currently active tasks
-    public TableView<Task> taskTable;
-    // the columns of the table
-    public TableColumn<Task, String> fileNameCol;
-    public TableColumn<Task, String> profileNameCol;
-    public TableColumn<Task, String> progressCol;
-    
     public String ffmpeg_path;
     public String ffprobe_path;
 
@@ -116,13 +100,12 @@ public class Controller {
         });
 
         addTask.setOnAction(actionEvent -> {
-            String file = inputFile.getText();
-			FFmpegBuilder builder = new FFmpegBuilder().addInput(file);
+            FFmpegBuilder builder = new FFmpegBuilder().addInput(inputFile.getText());
 
             // TODO: add settings etc...
             // TODO: read current settings from model and apply to builder
 
-            Task newTask = new Task(builder, file, model.currentSettings.getName());
+            Task newTask = new Task(builder);
             this.model.tasks.add(newTask);
         });
 
@@ -136,69 +119,6 @@ public class Controller {
 
         chooseProfile.getItems().addAll(SQLite.getProfileNames());
         chooseProfile.getSelectionModel().select(0);
-        
-        // setting up the table with the tasks
-        taskTable.setItems(model.tasks);
-        // assign the fileName property to the fileName column
-        fileNameCol.setCellValueFactory(c -> c.getValue().fileName);
-        // same with the profileName column
-        profileNameCol.setCellValueFactory(c -> c.getValue().profileName);
-        // same with the progress column
-        progressCol.setCellValueFactory(c -> c.getValue().progress);
-        // just some test cases, delete later
-        model.tasks.add(new Task(null, "test.mp4", "default"));
-        model.tasks.add(new Task(null, "test2.mp4", "android"));
-        model.tasks.add(new Task(null, "test3.mp4", "1080p"));
-        model.tasks.add(new Task(null, "test4.mp4", "nosubtitles"));
-        model.tasks.add(new Task(null, "test5.mp4", "default"));
-        model.tasks.add(new Task(null, "test6.mp4", "default"));
-        model.tasks.add(new Task(null, "test7.mp4", "default"));
-        model.tasks.get(1).progress.setValue("Finished");
-        model.tasks.get(4).progress.setValue("Finished");
-        model.tasks.get(5).progress.setValue("66%");
-        model.tasks.get(2).progress.setValue("50%");
-        model.tasks.get(3).progress.setValue("44%");
-        
-        startSelectedTask.setOnAction(e -> {
-        	int idx = taskTable.getSelectionModel().getSelectedIndex();
-        	if (idx < 0) {
-        		return;
-        	}
-        	Task task = model.tasks.get(idx);
-        	String progress = task.progress.getValue();
-        	if (progress.equalsIgnoreCase("not started")) {
-				System.out.println("Starting task " + task.fileName.getValue());
-				task.progress.setValue("Started"); // remove this line later
-				task.run();				
-			} else {
-				throw new RuntimeException("Can only start not started tasks");
-			}
-        });
-        
-        removeSelectedTask.setOnAction(e -> {
-        	int idx = taskTable.getSelectionModel().getSelectedIndex();
-        	if (idx < 0) {
-        		return;
-        	}
-        	Task t = model.tasks.get(idx);
-        	if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
-        		// TODO: stop a running task
-        		// in case you can not stop a running ffmpeg operation with this wrapper just throw an exception here
-        		System.out.println("Stopping task: " + model.tasks.get(idx).fileName.getValue());
-        	}
-        	System.out.println("Removing task: " + model.tasks.get(idx).fileName.getValue());
-        	model.tasks.remove(idx);
-        });
-        
-        removeFinishedTasks.setOnAction(e -> {
-        	for (int i = 0; i < model.tasks.size(); i++) {
-        		Task t = model.tasks.get(i);
-        		if (t.progress.getValue().equalsIgnoreCase("finished")) {
-        			model.tasks.remove(t);
-        			i--;
-        		}
-        	}
-        });
     }
 
 
