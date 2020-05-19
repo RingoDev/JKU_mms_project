@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class Main extends Application {
 
-    public static Stage primaryStage;
+    public static Stage window;
 
     public static void main(String[] args) throws SQLException, ConnectionFailedException {
         SQLite.openConnection();
@@ -24,7 +24,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Main.primaryStage = primaryStage;
+        Main.window = primaryStage;
         final FXMLLoader loader = new FXMLLoader(getClass().getResource("mainUI.fxml"));
         final Parent root = loader.load();
         Controller controller = loader.getController();
@@ -36,5 +36,9 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(event -> {
             controller.close();
         });
+    }
+
+    public void switchScene(){
+
     }
 }

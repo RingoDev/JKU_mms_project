@@ -41,6 +41,8 @@ public class Controller {
     public Button process;
     // dropdown menu which lets user select profile for task
     public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
+    // opens a new window to let the user customize a profile
+    public Button createProfile;
     public String ffmpeg_path;
     public String ffprobe_path;
 
@@ -90,7 +92,7 @@ public class Controller {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Video File");
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-            File file = fileChooser.showOpenDialog(Main.primaryStage);
+            File file = fileChooser.showOpenDialog(Main.window);
 
             if (file != null) {
                 inputFile.setText(file.getAbsolutePath());
@@ -109,6 +111,11 @@ public class Controller {
 
         process.setOnAction(actionEvent -> {
             // TODO: start processing all Tasks in model.tasks
+        });
+
+        createProfile.setOnAction(actionEvent -> {
+            //TODO set new scene to choose profile
+            System.out.print("Pressed");
         });
 
         chooseProfile.getItems().addAll(SQLite.getProfileNames());

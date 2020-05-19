@@ -1,26 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
+<GridPane alignment="center" hgap="10" prefHeight="250.0" prefWidth="500.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
     <VBox spacing="5.0">
         <HBox spacing="5.0">
-            <TextField fx:id="inputFile">test.mp4</TextField>
-            <ChoiceBox fx:id="chooseProfile" prefWidth="150.0">
+         <children>
+               <TextField fx:id="inputFile" prefWidth="150.0" text="test.mp4">test.mp4</TextField>
+               <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
+         </children>
+         <padding>
+            <Insets bottom="20.0" />
+         </padding>
+        </HBox>
+      <HBox spacing="5.0">
+         <children>
+               <ChoiceBox fx:id="chooseProfile" prefWidth="150.0">
             </ChoiceBox>
-        </HBox>
-        <HBox spacing="5.0">
-            <Button fx:id="fileChooser">Choose Video</Button>
-            <Button fx:id="addTask">Add Task</Button>
-            <Button fx:id="process">Process Queue</Button>
-        </HBox>
+            <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="Create Profile" />
+   
+         </children>
+         <padding>
+            <Insets bottom="20.0" />
+         </padding>
+      </HBox>
+      <HBox spacing="5.0">
+         <children>
+               <Button fx:id="addTask" prefWidth="150.0" text="Add Task">Add Task</Button>
+               <Button fx:id="process" prefWidth="150.0" text="Process Queue">Process Queue</Button>
+         </children>
+      </HBox>
     </VBox>
    <columnConstraints>
       <ColumnConstraints />
    </columnConstraints>
    <rowConstraints>
-      <RowConstraints />
       <RowConstraints />
    </rowConstraints>
 </GridPane>
