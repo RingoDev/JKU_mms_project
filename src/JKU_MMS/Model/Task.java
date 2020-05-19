@@ -3,15 +3,31 @@ package JKU_MMS.Model;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
+import net.bramp.ffmpeg.progress.Progress;
 import net.bramp.ffmpeg.progress.ProgressListener;
 import org.apache.commons.lang3.NotImplementedException;
+
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 public class Task {
     private final FFmpegBuilder builder;
     private FFmpegJob job;
+    public final StringProperty fileName;
+    public final StringProperty profileName;
+    public final StringProperty progress;
 
-    public Task(FFmpegBuilder builder) {
+    /**
+	 * Initializes a new task object
+	 * @param builder 
+	 * @param fileName
+	 * @param profileName
+	 */
+    public Task(FFmpegBuilder builder, String fileName, String profileName) {
         this.builder = builder;
+        progress = new SimpleStringProperty("Not started");
+        this.fileName = new SimpleStringProperty(fileName);
+        this.profileName = new SimpleStringProperty(profileName);
     }
 
     /**
@@ -19,7 +35,12 @@ public class Task {
      * @param executor
      */
     public void build(FFmpegExecutor executor) {
-        FFmpegJob job = executor.createJob(builder);
+        FFmpegJob job = executor.createJob(builder, new ProgressListener() {
+			@Override
+			public void progress(Progress arg0) {
+				// TODO: update progress property in here by calling progress.setValue(String newValue)
+			}
+		});
     }
 
     /**
@@ -37,7 +58,7 @@ public class Task {
      */
     public void run() {
         if (job == null) {
-            throw new IllegalStateException("Job has to be build before being started");
+            throw new IllegalStateException("Job has to be built before being started");
         }
         this.job.run();
     }
