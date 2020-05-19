@@ -1,4 +1,4 @@
-# JKU Multimediasystem Project
+# JKU Multimediasystem Projekt
 
 ## Videokonvertierung
 
