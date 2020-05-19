@@ -46,19 +46,23 @@ public class SQLite {
         conn.close();
     }
 
+    public static boolean deleteSampleProfile() throws SQLException {
+        return deleteProfile("Sample");
+    }
+
+
     /**
      * adds a sample profile to the DB
      *
-     * @throws SQLException              if a Database error occurs or if the connection is closed
-     * @throws ConnectionFailedException if the Connection to the DB can't be established
+     * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static void addSampleProfile() throws SQLException, ConnectionFailedException {
+    public static boolean addSampleProfile() throws SQLException {
 
         Profile profile = new Profile("Sample");
-        profile.setOutputPath(Path.of("C:\\Users\\Thomas\\IntellijProjects\\JKU_mms_project\\output"));
+        profile.setOutputPath(Path.of("./output"));
         profile.setFormat("mp4");
 
-        savePremadeProfile(profile);
+        return savePremadeProfile(profile);
     }
 
     /**
@@ -68,7 +72,7 @@ public class SQLite {
      * @return true if saving was successful
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean saveCustomProfile(Profile profile) throws SQLException, ConnectionFailedException {
+    public static boolean saveCustomProfile(Profile profile) throws SQLException {
         return saveProfile(profile, true);
     }
 
@@ -79,7 +83,7 @@ public class SQLite {
      * @return true if saving was successful
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean savePremadeProfile(Profile profile) throws SQLException, ConnectionFailedException {
+    public static boolean savePremadeProfile(Profile profile) throws SQLException {
         return saveProfile(profile, false);
     }
 
@@ -91,7 +95,7 @@ public class SQLite {
      * @return true if saving was successful
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    private static boolean saveProfile(Profile profile, boolean custom) throws SQLException, ConnectionFailedException {
+    private static boolean saveProfile(Profile profile, boolean custom) throws SQLException {
         if (profileIsSaved(profile.getName())) return false;
 
         String sql = "INSERT INTO profiles (Name,AudioCodec,AudioSampleRate,AudioBitRate,VideoCodec," +
@@ -193,11 +197,10 @@ public class SQLite {
      * Deletes a Profile.
      *
      * @param name the name of the Profile
+     * @return true if 1 or more Profiles were deleted
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static void deleteProfile(String name) throws SQLException {
-
-        //TODO implement method that only allows deletion of custom profiles
+    public static boolean deleteProfile(String name) throws SQLException {
 
         String sql = "DELETE FROM Profiles WHERE Name=?";
 
@@ -207,28 +210,31 @@ public class SQLite {
         int rowsDeleted = statement.executeUpdate();
         if (rowsDeleted > 0) {
             System.out.println(rowsDeleted + " profile" + (rowsDeleted != 1 ? "s were " : " was ") + "deleted successfully!");
+            return true;
         }
+        return false;
     }
 
     /**
      * Looks up the DB to see if Profile exists.
      *
      * @param name the Name of the Profile to look up.
-     * @return true if profile with this name exists in DB
+     * @return true if profile with this name exists in Database
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean profileIsSaved(String name) throws SQLException, ConnectionFailedException {
+    public static boolean profileIsSaved(String name) throws SQLException {
         String sql = "SELECT * FROM Profiles WHERE Name=?";
-        if (conn != null) {
-            PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setString(1, name);
-            ResultSet result = statement.executeQuery();
-            return result.next();
-        } else {
-            openConnection();
-            return profileIsSaved(name);
-        }
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, name);
+        ResultSet result = statement.executeQuery();
+        return result.next();
+    }
 
+    public static void test() throws SQLException {
+        if (addSampleProfile()) System.out.println("added Sample Profile");
+        else System.out.println("Didnt add Sample Profile ... maybe it already exists?");
+        if(deleteSampleProfile())System.out.println("deleted Sample Profile");
+        else System.out.println("Didnt delete Sample Profile ... something went wrong here!");
     }
 
     /**
