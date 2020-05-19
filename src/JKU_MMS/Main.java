@@ -33,7 +33,7 @@ public class Main extends Application {
         Controller controller = loader.getController();
 
         primaryStage.setTitle("Video Encoder");
-        mainScene = new Scene(root, 500, 250);
+        mainScene = new Scene(root, 500, 400);
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
