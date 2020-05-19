@@ -1,4 +1,4 @@
-package JKU_MMS;
+package JKU_MMS.Database;
 
 import JKU_MMS.Model.Profile;
 
