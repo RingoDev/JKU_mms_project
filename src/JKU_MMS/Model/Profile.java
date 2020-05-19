@@ -22,6 +22,16 @@ public class Profile {
     // all encoded videos with this profile will be saved in this directory
     private Path outputPath;
 
+    private boolean custom = true;
+
+    public boolean isCustom() {
+        return custom;
+    }
+
+    public void setCustom(boolean custom) {
+        this.custom = custom;
+    }
+
     public Profile(String name) {
         this.name = name;
     }

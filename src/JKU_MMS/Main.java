@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 public class Main extends Application {
 
-    public static Connection conn;
+
 
     public static Stage primaryStage;
 
@@ -34,10 +34,11 @@ public class Main extends Application {
 
 
 
-    public static void main(String[] args) throws UnexpectedException, SQLException {
-        Connection conn = SQLite.getConnection();
+    public static void main(String[] args) throws SQLException, ConnectionFailedException {
+        SQLite.openConnection();
         SQLite.addSampleProfile();
         launch(args);
-        conn.close();
+        SQLite.closeConnection();
+
     }
 }
