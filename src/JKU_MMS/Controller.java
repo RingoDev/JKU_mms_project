@@ -41,7 +41,7 @@ public class Controller {
     public Button process;
     // dropdown menu which lets user select profile for task
     public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
-    // opens a new window to let the user customize a profile
+    // switches screen screen to let the user customize a profile
     public Button createProfile;
     public String ffmpeg_path;
     public String ffprobe_path;
@@ -114,7 +114,6 @@ public class Controller {
         });
 
         createProfile.setOnAction(actionEvent -> {
-            //TODO set new scene to choose profile
             System.out.print("Pressed");
         });
 
@@ -122,8 +121,8 @@ public class Controller {
         chooseProfile.getSelectionModel().select(0);
     }
 
+
     public void close() {
         // TODO
     }
-
 }

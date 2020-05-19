@@ -8,11 +8,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class Main extends Application {
 
     public static Stage window;
+    public static Scene mainScene;
+    public static Scene profileScene;
 
     public static void main(String[] args) throws SQLException, ConnectionFailedException {
         SQLite.openConnection();
@@ -30,15 +33,13 @@ public class Main extends Application {
         Controller controller = loader.getController();
 
         primaryStage.setTitle("Video Encoder");
-        primaryStage.setScene(new Scene(root, 500, 250));
+        mainScene = new Scene(root, 500, 250);
+        primaryStage.setScene(mainScene);
         primaryStage.show();
 
         primaryStage.setOnCloseRequest(event -> {
             controller.close();
         });
-    }
-
-    public void switchScene(){
 
     }
 }

@@ -3,28 +3,71 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane alignment="center" hgap="10" prefHeight="250.0" prefWidth="500.0" vgap="10" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
-    <VBox spacing="5.0">
-        <HBox spacing="5.0">
+<VBox spacing="10.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
+   <children>
+      <HBox spacing="10.0">
          <children>
-               <TextField fx:id="inputFile" prefWidth="150.0" text="test.mp4">test.mp4</TextField>
-               <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
+            <GridPane alignment="center" hgap="10" vgap="10">
+                <VBox spacing="5.0" GridPane.rowIndex="1" />
+               <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                  <children>
+                     <Label text="Label" />
+                        <TextField fx:id="inputFile" prefWidth="150.0" promptText="test.mp4">test.mp4</TextField>
+                        <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
+                  </children>
+                  <padding>
+                     <Insets top="20.0" />
+                  </padding>
+               </VBox>
+               <columnConstraints>
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+            </GridPane>
+            <VBox prefHeight="250.0" prefWidth="295.0" spacing="5.0">
+               <children>
+                  <Label text="Options">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="20.0" />
+                     </VBox.margin>
+                  </Label>
+                     <ChoiceBox fx:id="chooseProfile" prefWidth="150.0">
+                     <VBox.margin>
+                        <Insets top="5.0" />
+                     </VBox.margin>
+                  </ChoiceBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Audiocodec:" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="VideoCodec:" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="removeSubtitles:" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="save profile as:" />
+                        <TextField />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
          </children>
-         <padding>
-            <Insets bottom="20.0" />
-         </padding>
-        </HBox>
-      <HBox spacing="5.0">
-         <children>
-               <ChoiceBox fx:id="chooseProfile" prefWidth="150.0">
-            </ChoiceBox>
-            <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="Create Profile" />
-   
-         </children>
-         <padding>
-            <Insets bottom="20.0" />
-         </padding>
       </HBox>
       <HBox spacing="5.0">
          <children>
@@ -32,11 +75,8 @@
                <Button fx:id="process" prefWidth="150.0" text="Process Queue">Process Queue</Button>
          </children>
       </HBox>
-    </VBox>
-   <columnConstraints>
-      <ColumnConstraints />
-   </columnConstraints>
-   <rowConstraints>
-      <RowConstraints />
-   </rowConstraints>
-</GridPane>
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</VBox>
