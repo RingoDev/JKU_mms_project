@@ -1,10 +1,14 @@
 package JKU_MMS;
 
 
+import JKU_MMS.Database.SQLite;
 import JKU_MMS.Model.Model;
+import JKU_MMS.Model.Profile;
 import JKU_MMS.Model.Task;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import net.bramp.ffmpeg.FFmpeg;
@@ -19,25 +23,24 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.sql.SQLOutput;
 
 public class Controller {
 
     private final Model model;
-    public TextField inputFile;
-
-    // opens a file chooser and lets the user choose a video file
-    public Button fileChooser;
-
-    // adds a new tasks to the queue
-    public Button addTask;
-
-    // starts processing all tasks enqueued in mode.tasks
-    public Button process;
-
     private final FFmpeg ffmpeg;
     private final FFprobe ffprobe;
     private final FFmpegExecutor fFmpegExecutor;
-
+    public TextField inputFile;
+    // opens a file chooser and lets the user choose a video file
+    public Button fileChooser;
+    // adds a new tasks to the queue
+    public Button addTask;
+    // starts processing all tasks enqueued in mode.tasks
+    public Button process;
+    // dropdown menu which lets user select profile for task
+    public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
     public String ffmpeg_path;
     public String ffprobe_path;
 
@@ -82,7 +85,7 @@ public class Controller {
     }
 
     @FXML
-    private void initialize() {
+    private void initialize() throws SQLException {
         fileChooser.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Video File");
@@ -107,6 +110,9 @@ public class Controller {
         process.setOnAction(actionEvent -> {
             // TODO: start processing all Tasks in model.tasks
         });
+
+        chooseProfile.getItems().addAll(SQLite.getProfileNames());
+        chooseProfile.getSelectionModel().select(0);
     }
 
     public void close() {

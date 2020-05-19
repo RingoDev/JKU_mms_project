@@ -18,9 +18,9 @@ public class Profile {
     private double VideoFrameRate = -1;
     private int videoWidth = -1;
     private int videoHeight = -1;
-    private String format;  // "mp4, mkv...."
+    private String format = "mp4";  // "mp4, mkv...."
     // all encoded videos with this profile will be saved in this directory
-    private Path outputPath;
+    private Path outputPath = Path.of("./");
 
     private boolean custom = true;
 

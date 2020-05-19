@@ -231,6 +231,7 @@ public class SQLite {
     }
 
     public static void test() throws SQLException {
+        System.out.println("Starting Database testrun");
         if (addSampleProfile()) System.out.println("added Sample Profile");
         else System.out.println("Didnt add Sample Profile ... maybe it already exists?");
         if(deleteSampleProfile())System.out.println("deleted Sample Profile");
@@ -243,9 +244,9 @@ public class SQLite {
      * @return a TreeSet with the Profile names in alphabetical order.
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public Set<String> getProfileNames() throws SQLException {
+    public static SortedSet<String> getProfileNames() throws SQLException {
 
-        Set<String> set = new TreeSet<>();
+        SortedSet<String> set = new TreeSet<>();
         String sql = "SELECT Name FROM Profiles";
 
         Statement statement = conn.createStatement();
