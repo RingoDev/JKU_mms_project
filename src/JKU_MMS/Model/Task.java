@@ -17,17 +17,20 @@ public class Task {
     public final StringProperty profileName;
     public final StringProperty progress;
 
+    private final double videoDuration;
+
     /**
 	 * Initializes a new task object
 	 * @param builder 
 	 * @param fileName
 	 * @param profileName
 	 */
-    public Task(FFmpegBuilder builder, String fileName, String profileName) {
+    public Task(FFmpegBuilder builder, String fileName, String profileName, double videoDuration) {
         this.builder = builder;
         progress = new SimpleStringProperty("Not started");
         this.fileName = new SimpleStringProperty(fileName);
         this.profileName = new SimpleStringProperty(profileName);
+        this.videoDuration = videoDuration;
     }
 
     /**
@@ -38,7 +41,8 @@ public class Task {
         FFmpegJob job = executor.createJob(builder, new ProgressListener() {
 			@Override
 			public void progress(Progress arg0) {
-				// TODO: update progress property in here by calling progress.setValue(String newValue)
+                // TODO: test if out_time_ns is actually the time in the video (like in the ffmpeg output) and NOT the time the process is working on the task
+                progress.setValue(Double.toString((arg0.out_time_ns / 1_000_000.0) / videoDuration));
 			}
 		});
     }
@@ -73,14 +77,5 @@ public class Task {
 
     public FFmpegJob getJob() {
         return job;
-    }
-
-    /**
-     * Get progress of this task
-     * @return Returns int between 0-100
-     */
-    public int getProgress() {
-        // TODO: implement
-        throw new NotImplementedException("");
     }
 }

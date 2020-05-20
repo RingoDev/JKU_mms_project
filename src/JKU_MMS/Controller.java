@@ -18,6 +18,7 @@ import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 
+import net.bramp.ffmpeg.job.FFmpegJob;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.BufferedReader;
@@ -122,7 +123,16 @@ public class Controller {
             // TODO: add settings etc...
             // TODO: read current settings from model and apply to builder
 
-            Task newTask = new Task(builder, input, model.currentSettings.getName());
+            double duration;
+            try {
+                duration = ffprobe.probe(input).format.duration;
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("Unable to get length of video --> task cannot be created for " + input);
+                return;
+            }
+
+            Task newTask = new Task(builder, input, model.currentSettings.getName(), duration);
             this.model.tasks.add(newTask);
         });
 
@@ -147,13 +157,13 @@ public class Controller {
         progressCol.setCellValueFactory(c -> c.getValue().progress);
         
         // just a few test cases, remove them later
-        model.tasks.add(new Task(null, "test.mp4", "default"));
-        model.tasks.add(new Task(null, "test2.mp4", "android"));
-        model.tasks.add(new Task(null, "test3.mp4", "1080p"));
-        model.tasks.add(new Task(null, "test4.mp4", "nosubtitles"));
-        model.tasks.add(new Task(null, "test5.mp4", "default"));
-        model.tasks.add(new Task(null, "test6.mp4", "default"));
-        model.tasks.add(new Task(null, "test7.mp4", "default"));
+        model.tasks.add(new Task(null, "test.mp4", "default", 60));
+        model.tasks.add(new Task(null, "test2.mp4", "android", 60));
+        model.tasks.add(new Task(null, "test3.mp4", "1080p", 60));
+        model.tasks.add(new Task(null, "test4.mp4", "nosubtitles", 60));
+        model.tasks.add(new Task(null, "test5.mp4", "default", 60));
+        model.tasks.add(new Task(null, "test6.mp4", "default", 60));
+        model.tasks.add(new Task(null, "test7.mp4", "default", 60));
         model.tasks.get(1).progress.setValue("Finished");
         model.tasks.get(4).progress.setValue("Finished");
         model.tasks.get(5).progress.setValue("66%");
