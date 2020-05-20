@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class Main extends Application {
         Controller controller = loader.getController();
 
         primaryStage.setTitle("Video Encoder");
+        primaryStage.getIcons().add(new Image("file:icon.png"));
         mainScene = new Scene(root, 800, 400);
         primaryStage.setScene(mainScene);
         primaryStage.show();
