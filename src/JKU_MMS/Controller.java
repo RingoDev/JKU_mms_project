@@ -3,10 +3,13 @@ package JKU_MMS;
 
 import JKU_MMS.Database.SQLite;
 import JKU_MMS.Model.Model;
+import JKU_MMS.Model.Profile;
 import JKU_MMS.Model.Task;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -24,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.SortedSet;
 
 
 public class Controller {
@@ -49,7 +53,7 @@ public class Controller {
     public ChoiceBox<String> chooseAudioCodec = new ChoiceBox<>();
     // opens a directory chooser and lets the user define the outputFolder
     public Button outputChooser;
- // starts the selected task
+    // starts the selected task
     public Button startSelectedTask;
     // removes the selected task
     public Button removeSelectedTask;
@@ -62,6 +66,9 @@ public class Controller {
     public TableColumn<Task, String> fileNameCol;
     public TableColumn<Task, String> profileNameCol;
     public TableColumn<Task, String> progressCol;
+    // Buttons for removing subtitles and audio
+    public RadioButton subtitlesButton;
+    public RadioButton audioButton;
     
     public String ffmpeg_path;
     public String ffprobe_path;
@@ -162,6 +169,15 @@ public class Controller {
         // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
 
+        // add listener to chooseProfile
+        ChangeListener<Object> profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
+        chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
+        // add listeners to settings
+        ChangeListener<Object> settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
+		chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        audioButton.selectedProperty().addListener(settingsChangedListener);
+        subtitlesButton.selectedProperty().addListener(settingsChangedListener);
         
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);
@@ -228,9 +244,33 @@ public class Controller {
         	}
         });
     }
-
-
+    
     public void close() {
         // TODO join ffmpegTask thread with timeout
     }
+    
+    public void settingsChanged() {
+    	System.out.println("Settings were changed");
+    	Profile curProfile = getProfile();
+    	SortedSet<Profile> profiles;
+    	try {
+			profiles = SQLite.getAllProfiles();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return;
+		}
+    	// TODO check if current settings match a profile in the database
+    	// if yes: change chooseProfile to the name of the profile (and remove "Custom" from the ComboBox options if necessary)
+    	// if no: change chooseProfile to "Custom" (add "Custom" to the ComboBox options if necessary)
+	}
+    
+    public Profile getProfile() {
+    	// TODO: create a profile object from all currently selected settings
+    	return null;
+    }
+    
+    public void profileChanged() {
+    	System.out.println("Profile was changed to " + chooseProfile.getValue());
+		// TODO fill all ComboBoxes and RadioButtons with the settings of the newly selected profile
+	}
 }

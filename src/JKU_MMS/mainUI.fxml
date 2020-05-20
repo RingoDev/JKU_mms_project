@@ -94,8 +94,18 @@
                               </HBox>
                               <HBox>
                                  <children>
-                                    <Label text="removeSubtitles:" />
-                                    <RadioButton mnemonicParsing="false">
+                                    <Label text="Remove Subtitles?" />
+                                    <RadioButton fx:id="subtitlesButton" mnemonicParsing="false">
+                                       <padding>
+                                          <Insets left="30.0" />
+                                       </padding>
+                                    </RadioButton>
+                                 </children>
+                              </HBox>
+                              <HBox>
+                                 <children>
+                                    <Label text="Remove Audio?" />
+                                    <RadioButton fx:id="audioButton" mnemonicParsing="false">
                                        <padding>
                                           <Insets left="30.0" />
                                        </padding>
