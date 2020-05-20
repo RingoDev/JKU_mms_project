@@ -170,9 +170,23 @@ public class Controller {
         	Task task = model.tasks.get(idx);
         	String progress = task.progress.getValue();
         	if (progress.equalsIgnoreCase("not started")) {
-				System.out.println("Starting task " + task.fileName.getValue());
-				task.progress.setValue("Starting...");
-                ffmpegTask = new Thread(task::run);
+				if (ffmpegTask != null) {
+                    if (ffmpegTask.isAlive()) {
+                        System.err.println("Cant start another tasks while one is being processed");
+                        return;
+                    } else {
+                        try {
+                            ffmpegTask.join();
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+
+                System.out.println("Starting task " + task.fileName.getValue());
+                task.progress.setValue("Starting...");
+
+                ffmpegTask = new Thread(task);
                 ffmpegTask.start();
 			} else {
 				throw new RuntimeException("Can only start unstarted tasks");
