@@ -94,15 +94,15 @@ public class Task {
 
     /**
      * Creates a taks from an file and profile
-     * @param input File path of a video
+     * @param filePath File path of a video
      * @param profile Profile with settings that will be applied to the video
      * @param BUILD_FLAG If set to true the tasks will be build with the {@link FFmpegExecutor} set in the {@link Controller}
      * @return Returns a new {@link Task}
      * @throws IOException Throws an {@link IOException} if the input file could not be found
      */
-    public static Task of(String input, Profile profile, boolean BUILD_FLAG) throws IOException {
-        FFmpegBuilder builder = new FFmpegBuilder().addInput(input);
-        double duration = Controller.ffprobe.probe(input).format.duration;
+    public static Task of(String filePath, Profile profile, boolean BUILD_FLAG) throws IOException {
+        FFmpegBuilder builder = new FFmpegBuilder().addInput(filePath);
+        double duration = Controller.ffprobe.probe(filePath).format.duration;
 
         String profileName;
         if (profile.getName().equals("CURRENT_SETTINGS")) {
@@ -111,7 +111,7 @@ public class Task {
             profileName = profile.getName();
         }
 
-        Task task = new Task(builder, input, profileName, duration);
+        Task task = new Task(builder, filePath, profileName, duration);
 
         applyProfile(task, profile);
 

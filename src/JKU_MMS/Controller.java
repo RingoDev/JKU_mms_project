@@ -26,10 +26,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
+
 
 public class Controller {
 
@@ -130,13 +129,13 @@ public class Controller {
         });
 
         addTask.setOnAction(actionEvent -> {
-            String input = inputFile.getText();
+            String filePath = inputFile.getText();
 
             try {
-                this.model.tasks.add(Task.of(input, model.currentSettings, true));
+                this.model.tasks.add(Task.of(filePath, model.currentSettings, true));
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Unable to create task for " + input + " because the file could not be accessed");
+                System.err.println("Unable to create task for " + filePath + " because the file could not be accessed");
             }
         });
 
@@ -148,7 +147,9 @@ public class Controller {
             System.out.print("Pressed");
         });
 
+        // adding saved Profiles to the Choicebox
         chooseProfile.getItems().addAll(SQLite.getProfileNames());
+        // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         
         // setting up the table with the tasks
