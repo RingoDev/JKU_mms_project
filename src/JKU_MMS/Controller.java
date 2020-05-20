@@ -3,9 +3,7 @@ package JKU_MMS;
 
 import JKU_MMS.Database.SQLite;
 import JKU_MMS.Model.Model;
-import JKU_MMS.Model.Profile;
 import JKU_MMS.Model.Task;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -17,9 +15,6 @@ import javafx.stage.FileChooser;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
-import net.bramp.ffmpeg.builder.FFmpegBuilder;
-
-import net.bramp.ffmpeg.job.FFmpegJob;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.BufferedReader;

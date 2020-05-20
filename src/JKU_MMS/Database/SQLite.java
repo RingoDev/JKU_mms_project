@@ -2,7 +2,12 @@ package JKU_MMS.Database;
 
 import JKU_MMS.Model.Profile;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
 
@@ -234,7 +239,7 @@ public class SQLite {
         System.out.println("Starting Database testrun");
         if (addSampleProfile()) System.out.println("added Sample Profile");
         else System.out.println("Didnt add Sample Profile ... maybe it already exists?");
-        if(deleteSampleProfile())System.out.println("deleted Sample Profile");
+        if (deleteSampleProfile()) System.out.println("deleted Sample Profile");
         else System.out.println("Didnt delete Sample Profile ... something went wrong here!");
     }
 
@@ -256,5 +261,66 @@ public class SQLite {
             set.add(result.getString("Name"));
         }
         return set;
+    }
+
+    /**
+     * deletes all codecs in Database
+     * @throws SQLException
+     */
+    public static void deleteCodecs() throws SQLException {
+        String sql = "DELETE FROM AvailableCodecs";
+
+        Statement statement = conn.createStatement();
+
+        int rowsDeleted = statement.executeUpdate(sql);
+        if (rowsDeleted > 0) {
+            System.out.println(rowsDeleted + " codec" + (rowsDeleted != 1 ? "s were " : " was ") + "deleted successfully!");
+        }
+    }
+
+    /**
+     * was used to inser codec into Database from String
+     * @param codec
+     * @throws SQLException
+     */
+    public static void addCodec(String codec) throws SQLException {
+
+        String sql = "INSERT INTO AvailableCodecs (CodecName,Description,Decoding,Encoding,CodecType," +
+                "IntraCodec,LossyCompression,LosslessCompression)" +
+                " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        String codecName = codec.replaceAll("(\\s\\s.+?$)","").substring(8);
+        String description = codec.replaceAll("(^.*?\\s\\s+)","");
+
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, codecName);
+        statement.setString(2, description);
+        statement.setInt(3, codec.charAt(1) == '.' ? 0 : 1);
+        statement.setInt(4, codec.charAt(2) == '.' ? 0 : 1);
+        statement.setInt(5, codec.charAt(3) == 'V' ? 0 : codec.charAt(3) == 'A' ? 1 : 2);//0: Video 1: Audio 2: Subtitles
+        statement.setInt(6, codec.charAt(4) == '.' ? 0 : 1);
+        statement.setInt(7, codec.charAt(5) == '.' ? 0 : 1);
+        statement.setInt(8, codec.charAt(6) == '.' ? 0 : 1);
+
+        int rowsInserted = statement.executeUpdate();
+        if (rowsInserted > 0) {
+            System.out.println("A new codec was inserted successfully!");
+        }
+    }
+
+    /**
+     * was used to read in codecs from file
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void readFile() throws IOException, SQLException {
+        BufferedReader reader = new BufferedReader(new FileReader(
+                Paths.get("data/codecs.txt").toFile()));
+        String line = reader.readLine();
+        while (line != null) {
+            addCodec(line);
+            line = reader.readLine();
+        }
+        reader.close();
     }
 }

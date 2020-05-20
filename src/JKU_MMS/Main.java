@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class Main extends Application {
@@ -17,7 +18,7 @@ public class Main extends Application {
     public static Stage window;
     public static Scene mainScene;
 
-    public static void main(String[] args) throws SQLException, ConnectionFailedException {
+    public static void main(String[] args) throws SQLException, ConnectionFailedException, IOException {
         SQLite.openConnection();
         SQLite.test();
         launch(args);
@@ -40,6 +41,5 @@ public class Main extends Application {
         primaryStage.setOnCloseRequest(event -> {
             controller.close();
         });
-
     }
 }
