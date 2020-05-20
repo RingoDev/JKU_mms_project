@@ -36,7 +36,7 @@ public class Controller {
     public TextField inputFile;
     public TextField outputPath;
     // opens a file chooser and lets the user choose a video file
-    public Button fileChooser;
+    public Button inputChooser;
     // adds a new tasks to the queue
     public Button addTask;
     // starts processing all tasks enqueued in mode.tasks
@@ -109,7 +109,7 @@ public class Controller {
             model.currentSettings.setOutputPath(Paths.get(newValue));
         });
 
-        fileChooser.setOnAction(actionEvent -> {
+        inputChooser.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Video File");
             fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
