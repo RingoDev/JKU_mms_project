@@ -13,7 +13,7 @@ import javafx.beans.property.StringProperty;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-public class Task {
+public class Task implements Runnable {
     private final FFmpegBuilder builder;
     private FFmpegJob job;
     public final StringProperty fileName;
@@ -44,7 +44,7 @@ public class Task {
         job = executor.createJob(builder, new ProgressListener() {
 			@Override
 			public void progress(Progress arg0) {
-                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)));
+                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)) + "%");
 			}
 		});
     }
@@ -59,14 +59,16 @@ public class Task {
     }
 
     /**
-     * Starts the computation of the job
+     * Starts the computation of the job. This should be started in a thread.
      * @throws IllegalStateException if task.build has not been called yet
      */
+    @Override
     public void run() {
         if (job == null) {
             throw new IllegalStateException("Job has to be built before being started");
         }
         this.job.run();
+        progress.setValue("100%");
     }
 
     /**
