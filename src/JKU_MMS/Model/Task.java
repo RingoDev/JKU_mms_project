@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class Task {
     private final FFmpegBuilder builder;
@@ -128,7 +129,7 @@ public class Task {
      * @param profile
      */
     private static void applyProfile(Task task, Profile profile) {
-        task.builder.addOutput(profile.getOutputPath().toString());
+        task.builder.addOutput(Paths.get(profile.getOutputPath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
         // TODO
     }
 }
