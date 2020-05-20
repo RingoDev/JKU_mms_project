@@ -44,8 +44,7 @@ public class Task {
         job = executor.createJob(builder, new ProgressListener() {
 			@Override
 			public void progress(Progress arg0) {
-                // TODO: test if out_time_ns is actually the time in the video (like in the ffmpeg output) and NOT the time the process is working on the task
-                progress.setValue(Double.toString((arg0.out_time_ns / 1_000_000.0) / videoDuration));
+                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)));
 			}
 		});
     }

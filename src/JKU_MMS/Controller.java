@@ -33,6 +33,7 @@ import java.sql.SQLException;
 public class Controller {
 
     private final Model model;
+    private Thread ffmpegTask;
     public static FFmpeg ffmpeg;
     public static FFprobe ffprobe;
     public static FFmpegExecutor fFmpegExecutor;
@@ -171,7 +172,8 @@ public class Controller {
         	if (progress.equalsIgnoreCase("not started")) {
 				System.out.println("Starting task " + task.fileName.getValue());
 				task.progress.setValue("Starting...");
-				task.run();
+                ffmpegTask = new Thread(task::run);
+                ffmpegTask.start();
 			} else {
 				throw new RuntimeException("Can only start unstarted tasks");
 			}
@@ -205,6 +207,6 @@ public class Controller {
 
 
     public void close() {
-        // TODO
+        // TODO join ffmpegTask thread with timeout
     }
 }
