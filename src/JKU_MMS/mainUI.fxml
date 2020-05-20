@@ -7,21 +7,52 @@
 
 <VBox spacing="10.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
    <children>
-      <HBox spacing="10.0">
+      <VBox spacing="5.0">
          <children>
-            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-               <children>
-                  <Label text="Label" />
-                     <TextField fx:id="inputFile" prefWidth="150.0" promptText="test.mp4">test.mp4</TextField>
-                     <Button fx:id="fileChooser" prefWidth="150.0" text="Choose Video">Choose Video</Button>
-               </children>
-               <padding>
-                  <Insets top="20.0" />
-               </padding>
-            </VBox>
+         	<BorderPane>
+         		<center>
+         			<Label text="File Options" BorderPane.Alignment="CENTER">
+         				<font>
+                        	<Font name="System Bold" size="12.0" />
+                     	</font>
+         			</Label>
+         		</center>
+         	</BorderPane>
+         	<BorderPane>
+         		<left>
+         			<Label text="Input file:" prefWidth="100.0" BorderPane.Alignment="CENTER_LEFT"/>
+         		</left>
+         		<center>
+         			<TextField fx:id="inputFile" prefWidth="500.0" promptText="test.mp4">test.mp4</TextField>
+         			<BorderPane.margin>
+                        <Insets right="10.0" left="10.0"/>
+                    </BorderPane.margin>
+         		</center>
+         		<right>
+         			<Button fx:id="inputChooser" prefWidth="150.0">Browse</Button>
+         		</right>
+         	</BorderPane>
+         	<BorderPane>
+         		<left>
+         			<Label text="Output path:" prefWidth="100.0" BorderPane.Alignment="CENTER_LEFT"/>
+         		</left>
+         		<center>
+         			<TextField fx:id="outputPath" prefWidth="500.0"/>
+         			<BorderPane.margin>
+                        <Insets right="10.0" left="10.0"/>
+                    </BorderPane.margin>
+         		</center>
+         		<right>
+         			<Button fx:id="outputChooser" prefWidth="150.0">Browse</Button>
+         		</right>
+         	</BorderPane>
+         </children>
+       </VBox>
+       <VBox spacing="10.0">
+         <children>
             <BorderPane>
                <top>
-                  <Label text="Options" BorderPane.alignment="CENTER">
+                  <Label text="Encoding Options" BorderPane.alignment="CENTER">
                      <font>
                         <Font name="System Bold" size="12.0" />
                      </font>
@@ -71,22 +102,12 @@
                               </HBox>
                            </children>
                         </VBox>
-                        <VBox>
-                           <children>
-                              <HBox>
-                                 <children>
-                                    <Button fx:id="outputChooser" mnemonicParsing="false" text="Select Output Folder" />
-                                    <TextField fx:id="outputPath" />
-                                 </children>
-                              </HBox>
-                           </children>
-                        </VBox>
                      </children>
                   </HBox>
                </center>
             </BorderPane>
          </children>
-      </HBox>
+      </VBox>
       <HBox spacing="5.0">
          <children>
                <Button fx:id="addTask" prefWidth="150.0" text="Add Task">Add Task</Button>

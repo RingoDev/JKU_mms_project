@@ -35,7 +35,7 @@ public class Main extends Application {
 
         primaryStage.setTitle("Video Encoder");
         primaryStage.getIcons().add(new Image("file:icon.png"));
-        mainScene = new Scene(root, 800, 400);
+        mainScene = new Scene(root, 800, 600);
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
