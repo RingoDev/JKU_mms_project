@@ -8,7 +8,7 @@ import java.util.*;
 
 public class SQLite {
 
-    private final static String DB_PATH = "./data/profiles.db";
+    private final static String DB_PATH = "./data/data.db";
     private final static String DB_URL = "jdbc:sqlite:" + DB_PATH;
     private static Connection conn;
 
