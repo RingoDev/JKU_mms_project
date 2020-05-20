@@ -12,6 +12,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
@@ -47,8 +48,8 @@ public class Controller {
     public Button process;
     // dropdown menu which lets user select profile for task
     public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
-    // switches screen screen to let the user customize a profile
-    public Button createProfile;
+    // opens a directory chooser and lets the user define the outputFolder
+    public Button outputChooser;
  // starts the selected task
     public Button startSelectedTask;
     // removes the selected task
@@ -144,8 +145,14 @@ public class Controller {
             // TODO: start processing all Tasks in model.tasks
         });
 
-        createProfile.setOnAction(actionEvent -> {
-            System.out.print("Pressed");
+        outputChooser.setOnAction(actionEvent -> {
+            DirectoryChooser outputChooser = new DirectoryChooser();
+            outputChooser.setTitle("Select Output Folder");
+            outputChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            File selectedDirectory = outputChooser.showDialog(Main.window);
+            if (selectedDirectory != null) {
+                outputPath.setText(selectedDirectory.getAbsolutePath());
+            }
         });
 
         // adding saved Profiles to the Choicebox

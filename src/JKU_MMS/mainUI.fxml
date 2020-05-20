@@ -75,9 +75,8 @@
                            <children>
                               <HBox>
                                  <children>
-                                    <Label text="Choose OutputPath;" />
+                                    <Button fx:id="outputChooser" mnemonicParsing="false" text="Select Output Folder" />
                                     <TextField fx:id="outputPath" />
-                                    <Button mnemonicParsing="false" text="Button" />
                                  </children>
                               </HBox>
                            </children>
@@ -96,9 +95,9 @@
       </HBox>
       <TableView fx:id="taskTable">
         <columns>
-      		<TableColumn fx:id="fileNameCol" text="File" prefWidth="465.0"/>
-      		<TableColumn fx:id="profileNameCol" text="Profile" prefWidth="200.0"/>
-      		<TableColumn fx:id="progressCol" text="Progress" prefWidth="100.0"/>
+      		<TableColumn fx:id="fileNameCol" prefWidth="465.0" text="File" />
+      		<TableColumn fx:id="profileNameCol" prefWidth="200.0" text="Profile" />
+      		<TableColumn fx:id="progressCol" prefWidth="100.0" text="Progress" />
         </columns>
       </TableView>
       <HBox spacing="5.0">
