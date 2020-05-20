@@ -43,6 +43,10 @@ public class Controller {
     public Button process;
     // dropdown menu which lets user select profile for task
     public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
+    // dropdown menu which lets user select VideoCodec for the task
+    public ChoiceBox<String> chooseVideoCodec = new ChoiceBox<>();
+    // dropdown menu which lets user select AudioCodec for task
+    public ChoiceBox<String> chooseAudioCodec = new ChoiceBox<>();
     // opens a directory chooser and lets the user define the outputFolder
     public Button outputChooser;
  // starts the selected task
@@ -145,10 +149,19 @@ public class Controller {
             }
         });
 
-        // adding saved Profiles to the Choicebox
+        // adding saved Profiles to the ChoiceBox
         chooseProfile.getItems().addAll(SQLite.getProfileNames());
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
+        // adding saved VideoCodecs to the ChoiceBox
+        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecDescriptions());
+        // display the first Value in list as standard select
+        chooseVideoCodec.getSelectionModel().select(0);
+        // adding saved AudioCodecs to the ChoiceBox
+        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecDescriptions());
+        // display the first Value in list as standard select
+        chooseAudioCodec.getSelectionModel().select(0);
+
         
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);

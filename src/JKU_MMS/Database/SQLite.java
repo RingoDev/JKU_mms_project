@@ -1,6 +1,7 @@
 package JKU_MMS.Database;
 
 import JKU_MMS.Model.Profile;
+import org.apache.tools.ant.types.resources.Sort;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -264,8 +265,40 @@ public class SQLite {
     }
 
     /**
+     * Queries the Database for all VideoCodecs and returns the Descriptions alphabetically sorted.
+     * @return a TreeSet with the Available VideoCodec Descriptions
+     * @throws SQLException if a Database error occurs or if the connection is closed
+     */
+    public static SortedSet<String> getVideoCodecDescriptions() throws SQLException {
+        SortedSet<String> set = new TreeSet<>();
+        String sql = "SELECT Description FROM AvailableCodecs WHERE CodecType=0";
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery(sql);
+        while (result.next()) {
+            set.add(result.getString("Description"));
+        }
+        return set;
+    }
+
+    /**
+     * Queries the Database for all AudioCodecs and returns the Descriptions alphabetically sorted.
+     * @return a TreeSet with the Available AudioCodec Descriptions
+     * @throws SQLException if a Database error occurs or if the connection is closed
+     */
+    public static SortedSet<String> getAudioCodecDescriptions() throws SQLException {
+        SortedSet<String> set = new TreeSet<>();
+        String sql = "SELECT Description FROM AvailableCodecs WHERE CodecType=1";
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery(sql);
+        while (result.next()) {
+            set.add(result.getString("Description"));
+        }
+        return set;
+    }
+
+    /**
      * deletes all codecs in Database
-     * @throws SQLException
+     * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void deleteCodecs() throws SQLException {
         String sql = "DELETE FROM AvailableCodecs";
@@ -281,7 +314,7 @@ public class SQLite {
     /**
      * was used to inser codec into Database from String
      * @param codec
-     * @throws SQLException
+     * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void addCodec(String codec) throws SQLException {
 
@@ -308,10 +341,11 @@ public class SQLite {
         }
     }
 
+
     /**
      * was used to read in codecs from file
      * @throws IOException
-     * @throws SQLException
+     * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void readFile() throws IOException, SQLException {
         BufferedReader reader = new BufferedReader(new FileReader(
