@@ -1,14 +1,16 @@
 package JKU_MMS.Model;
 
+import JKU_MMS.Controller;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
 import net.bramp.ffmpeg.progress.ProgressListener;
-import org.apache.commons.lang3.NotImplementedException;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import java.io.IOException;
 
 public class Task {
     private final FFmpegBuilder builder;
@@ -25,7 +27,7 @@ public class Task {
 	 * @param fileName
 	 * @param profileName
 	 */
-    public Task(FFmpegBuilder builder, String fileName, String profileName, double videoDuration) {
+     private Task(FFmpegBuilder builder, String fileName, String profileName, double videoDuration) {
         this.builder = builder;
         progress = new SimpleStringProperty("Not started");
         this.fileName = new SimpleStringProperty(fileName);
@@ -38,7 +40,7 @@ public class Task {
      * @param executor
      */
     public void build(FFmpegExecutor executor) {
-        FFmpegJob job = executor.createJob(builder, new ProgressListener() {
+        job = executor.createJob(builder, new ProgressListener() {
 			@Override
 			public void progress(Progress arg0) {
                 // TODO: test if out_time_ns is actually the time in the video (like in the ffmpeg output) and NOT the time the process is working on the task
@@ -77,5 +79,56 @@ public class Task {
 
     public FFmpegJob getJob() {
         return job;
+    }
+
+    /**
+     * Creates a taks from an file and profile
+     * @param input File path of a video
+     * @param profile Profile with settings that will be applied to the video
+     * @return Returns a new {@link Task}
+     * @throws IOException Throws an {@link IOException} if the input file could not be found
+     */
+    public static Task of(String input, Profile profile) throws IOException {
+        return of(input, profile, false);
+    }
+
+    /**
+     * Creates a taks from an file and profile
+     * @param input File path of a video
+     * @param profile Profile with settings that will be applied to the video
+     * @param BUILD_FLAG If set to true the tasks will be build with the {@link FFmpegExecutor} set in the {@link Controller}
+     * @return Returns a new {@link Task}
+     * @throws IOException Throws an {@link IOException} if the input file could not be found
+     */
+    public static Task of(String input, Profile profile, boolean BUILD_FLAG) throws IOException {
+        FFmpegBuilder builder = new FFmpegBuilder().addInput(input);
+        double duration = Controller.ffprobe.probe(input).format.duration;
+
+        String profileName;
+        if (profile.getName().equals("CURRENT_SETTINGS")) {
+            profileName = "Custom";
+        } else {
+            profileName = profile.getName();
+        }
+
+        Task task = new Task(builder, input, profileName, duration);
+
+        applyProfile(task, profile);
+
+        if (BUILD_FLAG) {
+            task.build(Controller.fFmpegExecutor);
+        }
+
+        return task;
+    }
+
+    /**
+     * Applies a profile to a task
+     * @param task
+     * @param profile
+     */
+    private static void applyProfile(Task task, Profile profile) {
+        task.builder.addOutput(profile.getOutputPath().toString());
+        // TODO
     }
 }

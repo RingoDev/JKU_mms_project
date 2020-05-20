@@ -25,6 +25,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.sql.SQLOutput;
@@ -32,10 +34,11 @@ import java.sql.SQLOutput;
 public class Controller {
 
     private final Model model;
-    private final FFmpeg ffmpeg;
-    private final FFprobe ffprobe;
-    private final FFmpegExecutor fFmpegExecutor;
+    public static FFmpeg ffmpeg;
+    public static FFprobe ffprobe;
+    public static FFmpegExecutor fFmpegExecutor;
     public TextField inputFile;
+    public TextField outputPath;
     // opens a file chooser and lets the user choose a video file
     public Button fileChooser;
     // adds a new tasks to the queue
@@ -64,6 +67,8 @@ public class Controller {
     public String ffprobe_path;
 
     public Controller() throws IOException {
+        this.model = new Model();
+
         if (SystemUtils.IS_OS_LINUX) {
             // TODO: set with whereis command
             //ProcessBuilder ffmpegWh = new ProcessBuilder("whereis", "ffmpeg");
@@ -71,15 +76,17 @@ public class Controller {
 
             ffmpeg_path = "/usr/bin/ffmpeg";
             ffprobe_path = "/usr/bin/ffprobe";
+            model.currentSettings.setOutputPath(Paths.get("/tmp"));
         } else {
             BufferedReader reader = new BufferedReader(new FileReader(
                     Paths.get(".env").toFile()));
             ffmpeg_path = reader.readLine();
             ffprobe_path = reader.readLine();
             reader.close();
+
+            model.currentSettings.setOutputPath(Files.createTempDirectory("encoded_tmp-"));
         }
 
-        this.model = new Model();
         try {
             this.ffmpeg = new FFmpeg(ffmpeg_path);
         } catch (IOException e) {
@@ -105,6 +112,12 @@ public class Controller {
 
     @FXML
     private void initialize() throws SQLException {
+        outputPath.setText(model.currentSettings.getOutputPath().toString());
+
+        outputPath.textProperty().addListener((observable, oldValue, newValue) -> {
+            model.currentSettings.setOutputPath(Paths.get(newValue));
+        });
+
         fileChooser.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Video File");
@@ -118,22 +131,13 @@ public class Controller {
 
         addTask.setOnAction(actionEvent -> {
             String input = inputFile.getText();
-			FFmpegBuilder builder = new FFmpegBuilder().addInput(input);
 
-            // TODO: add settings etc...
-            // TODO: read current settings from model and apply to builder
-
-            double duration;
             try {
-                duration = ffprobe.probe(input).format.duration;
+                this.model.tasks.add(Task.of(input, model.currentSettings, true));
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Unable to get length of video --> task cannot be created for " + input);
-                return;
+                System.err.println("Unable to create task for " + input + " because the file could not be accessed");
             }
-
-            Task newTask = new Task(builder, input, model.currentSettings.getName(), duration);
-            this.model.tasks.add(newTask);
         });
 
         process.setOnAction(actionEvent -> {
@@ -155,20 +159,6 @@ public class Controller {
         profileNameCol.setCellValueFactory(c -> c.getValue().profileName);
         // same with progress column
         progressCol.setCellValueFactory(c -> c.getValue().progress);
-        
-        // just a few test cases, remove them later
-        model.tasks.add(new Task(null, "test.mp4", "default", 60));
-        model.tasks.add(new Task(null, "test2.mp4", "android", 60));
-        model.tasks.add(new Task(null, "test3.mp4", "1080p", 60));
-        model.tasks.add(new Task(null, "test4.mp4", "nosubtitles", 60));
-        model.tasks.add(new Task(null, "test5.mp4", "default", 60));
-        model.tasks.add(new Task(null, "test6.mp4", "default", 60));
-        model.tasks.add(new Task(null, "test7.mp4", "default", 60));
-        model.tasks.get(1).progress.setValue("Finished");
-        model.tasks.get(4).progress.setValue("Finished");
-        model.tasks.get(5).progress.setValue("66%");
-        model.tasks.get(2).progress.setValue("50%");
-        model.tasks.get(3).progress.setValue("44%");
         
         startSelectedTask.setOnAction(e -> {
         	int idx = taskTable.getSelectionModel().getSelectedIndex();

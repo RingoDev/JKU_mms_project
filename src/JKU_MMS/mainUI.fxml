@@ -76,7 +76,7 @@
                               <HBox>
                                  <children>
                                     <Label text="Choose OutputPath;" />
-                                    <TextField />
+                                    <TextField fx:id="outputPath" />
                                     <Button mnemonicParsing="false" text="Button" />
                                  </children>
                               </HBox>
