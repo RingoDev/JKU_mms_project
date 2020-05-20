@@ -9,21 +9,19 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+
 import java.sql.SQLException;
 
 public class Main extends Application {
 
     public static Stage window;
     public static Scene mainScene;
-    public static Scene profileScene;
 
     public static void main(String[] args) throws SQLException, ConnectionFailedException {
         SQLite.openConnection();
         SQLite.test();
         launch(args);
         SQLite.closeConnection();
-
     }
 
     @Override

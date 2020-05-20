@@ -89,7 +89,7 @@ public class Controller {
         }
 
         try {
-            this.ffmpeg = new FFmpeg(ffmpeg_path);
+            ffmpeg = new FFmpeg(ffmpeg_path);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffmpeg required for controller");
@@ -97,18 +97,13 @@ public class Controller {
         }
 
         try {
-            this.ffprobe = new FFprobe(ffprobe_path);
+            ffprobe = new FFprobe(ffprobe_path);
         } catch (IOException e) {
             e.printStackTrace();
             throw new IllegalStateException("Could not find ffprobe required for controller");
             // TODO: handle exception and open a popup for the user to set a path
         }
-
-        if (ffmpeg != null && ffprobe != null) {
-            fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
-        } else {
-            throw new IllegalStateException("Controller could not be constructed because ffmpeg or ffprobe could not be found");
-        }
+        fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
     }
 
     @FXML
