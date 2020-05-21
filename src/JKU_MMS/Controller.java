@@ -84,6 +84,7 @@ public class Controller {
             ffprobe_path = reader.readLine();
             reader.close();
 
+            //TODO createDirectory when Task is started, not when application is opened.
             model.currentSettings.setOutputPath(Files.createTempDirectory("encoded_tmp-"));
         }
 
@@ -130,6 +131,7 @@ public class Controller {
             try {
                 this.model.tasks.add(Task.of(filePath, model.currentSettings, true));
             } catch (IOException e) {
+                //TODO create PopUp Window with ErrorMessage
                 e.printStackTrace();
                 System.err.println("Unable to create task for " + filePath + " because the file could not be accessed");
             }
@@ -148,6 +150,8 @@ public class Controller {
                 outputPath.setText(selectedDirectory.getAbsolutePath());
             }
         });
+
+        //TODO when Profile is selected, display corresponding Settings as Standard
 
         // adding saved Profiles to the ChoiceBox
         chooseProfile.getItems().addAll(SQLite.getProfileNames());
