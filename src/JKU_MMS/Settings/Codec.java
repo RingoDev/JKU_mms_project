@@ -80,6 +80,7 @@ public class Codec {
     }
 
     public String toString() {
+        if(description == null)return codecName;
         StringBuilder sb = new StringBuilder();
         sb.append(this.codecName).append(" - ").append(description);
         if (sb.length() > 40) sb.delete(40, sb.length()-1).append("...");

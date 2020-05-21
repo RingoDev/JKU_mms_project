@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -53,13 +51,13 @@ public class Controller {
     // starts processing all tasks enqueued in mode.tasks
     public Button process;
     // dropdown menu which lets user select profile for task
-    public ChoiceBox<String> chooseProfile = new ChoiceBox<>();
+    public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
-    public ChoiceBox<String> chooseVideoCodec = new ChoiceBox<>();
+    public ChoiceBox<Codec> chooseVideoCodec = new ChoiceBox<>();
     // dropdown menu which lets user select AudioCodec for task
-    public ChoiceBox<String> chooseAudioCodec = new ChoiceBox<>();
+    public ChoiceBox<Codec> chooseAudioCodec = new ChoiceBox<>();
     // dropdown menu which lets user select Format for task
-    public ChoiceBox<String> chooseFormat = new ChoiceBox<>();
+    public ChoiceBox<Format> chooseFormat = new ChoiceBox<>();
     // opens a directory chooser and lets the user define the outputFolder
     public Button outputChooser;
     // starts the selected task
@@ -188,21 +186,21 @@ public class Controller {
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
-        chooseVideoCodec.getItems().add("auto");
-        chooseVideoCodec.getItems().add("copy");
-        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
+        chooseVideoCodec.getItems().add(new Codec("auto"));
+        chooseVideoCodec.getItems().add(new Codec("copy"));
+        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs());
         // display the first Value in list as standard select
         chooseVideoCodec.getSelectionModel().select(0);
         // adding saved AudioCodecs to the ChoiceBox
-        chooseAudioCodec.getItems().add("auto");
-        chooseAudioCodec.getItems().add("copy");
-        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
+        chooseAudioCodec.getItems().add(new Codec("auto"));
+        chooseAudioCodec.getItems().add(new Codec("copy"));
+        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs());
         // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
         // adding available Formats to the ChoiceBox
-        chooseFormat.getItems().add("auto");
-        chooseFormat.getItems().add("copy");
-        chooseFormat.getItems().addAll(SQLite.getFormats().stream().map(Format::toString).collect(Collectors.toList()));
+        chooseFormat.getItems().add(new Format("auto"));
+        chooseFormat.getItems().add(new Format("copy"));
+        chooseFormat.getItems().addAll(SQLite.getFormats());
         // display the first Value in list as standard select
         chooseFormat.getSelectionModel().select(0);
 
@@ -222,9 +220,9 @@ public class Controller {
         samplerateText.textProperty().addListener(settingsChangedListener);
 
         // if settings change set them directly in the model
-        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1));
-        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoCodec(t1));
-        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1));
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1.getCodecName()));
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoCodec(t1.getCodecName()));
+        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1.getFormatName()));
         audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveAudio(t1));
         subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveSubtitles(t1));
         frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
@@ -310,8 +308,8 @@ public class Controller {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-        	chooseProfile.getItems().add(name);
-        	chooseProfile.getSelectionModel().select(name);
+        	chooseProfile.getItems().add(newProfile);
+        	chooseProfile.getSelectionModel().select(newProfile);
         	chooseProfile.getItems().remove("Custom");
         	System.out.println("Saved profile as " + name);
         });
@@ -365,29 +363,31 @@ public class Controller {
     	System.out.println("Settings were changed");
     	Profile curProfile = getProfile();
     	Map<String,Profile> map = profileMap;
-    	if (map.containsValue(curProfile)) {
-    		Profile p = null;
-    		String name = null;
-    		for (Map.Entry<String, Profile> e : map.entrySet()) {
-    			if (e.getValue().equals(curProfile)) {
-    				p = e.getValue();
-    				name = e.getKey();
-    				break;
-    			}
-    		}
-    		chooseProfile.getItems().remove("Custom");
-    		chooseProfile.getSelectionModel().select(name);
-    	} else {
-    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
-    		chooseProfile.getSelectionModel().select("Custom");
-    	}
+
+    	// what does this part do?
+//    	if (map.containsValue(curProfile)) {
+//    		Profile p = null;
+//    		String name = null;
+//    		for (Map.Entry<String, Profile> e : map.entrySet()) {
+//    			if (e.getValue().equals(curProfile)) {
+//    				p = e.getValue();
+//    				name = e.getKey();
+//    				break;
+//    			}
+//    		}
+//    		chooseProfile.getItems().remove("Custom");
+//    		chooseProfile.getSelectionModel().select(name);
+//    	} else {
+//    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
+//    		chooseProfile.getSelectionModel().select("Custom");
+//    	}
 	}
     
     public Profile getProfile() {
     	String profileName = newProfileName.getText();
-    	String format = chooseFormat.getValue();
-    	String videoCodec = chooseVideoCodec.getValue();
-    	String audioCodec = chooseAudioCodec.getValue();
+    	String format = chooseFormat.getValue().getFormatName();
+    	String videoCodec = chooseVideoCodec.getValue().getCodecName();
+    	String audioCodec = chooseAudioCodec.getValue().getCodecName();
     	boolean removeSubtitles = subtitlesButton.selectedProperty().get();
     	boolean removeAudio = audioButton.selectedProperty().get();
     	int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
@@ -412,7 +412,7 @@ public class Controller {
     }
     
     public void profileChanged() {
-    	System.out.println("Profile was changed to " + profileMap.get(chooseProfile.getValue()));
+    	System.out.println("Profile was changed to " + chooseProfile.getValue());
 
 		// TODO fill all ComboBoxes and RadioButtons with the settings of the newly selected profile
 	}

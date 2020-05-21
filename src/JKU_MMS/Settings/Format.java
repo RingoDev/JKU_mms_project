@@ -44,6 +44,7 @@ public class Format {
     }
 
     public String toString() {
+        if(description == null)return formatName;
         StringBuilder sb = new StringBuilder();
         sb.append(this.formatName).append(" - ").append(description);
         if (sb.length() > 40) sb.delete(40, sb.length() - 1).append("...");
