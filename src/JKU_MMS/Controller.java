@@ -286,6 +286,8 @@ public class Controller {
         	profileMap.put(name, newProfile);
         	// TODO: implement SQLite.addProfile(newProfile); so we can add the new profile to the database
         	chooseProfile.getItems().add(name);
+        	chooseProfile.getSelectionModel().select(name);
+        	chooseProfile.getItems().remove("Custom");
         	System.out.println("Saved profile as " + name);
         });
     }
@@ -298,10 +300,22 @@ public class Controller {
     	System.out.println("Settings were changed");
     	Profile curProfile = getProfile();
     	Map<String,Profile> map = profileMap;
-
-    	// TODO check if current settings match a profile in the database
-    	// if yes: change chooseProfile to the name of the profile (and remove "Custom" from the ComboBox options if necessary)
-    	// if no: change chooseProfile to "Custom" (add "Custom" to the ComboBox options if necessary)
+    	if (map.containsValue(curProfile)) {
+    		Profile p = null;
+    		String name = null;
+    		for (Map.Entry<String, Profile> e : map.entrySet()) {
+    			if (e.getValue().equals(curProfile)) {
+    				p = e.getValue();
+    				name = e.getKey();
+    				break;
+    			}
+    		}
+    		chooseProfile.getItems().remove("Custom");
+    		chooseProfile.getSelectionModel().select(name);
+    	} else {
+    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
+    		chooseProfile.getSelectionModel().select("Custom");
+    	}
 	}
     
     public Profile getProfile() {
