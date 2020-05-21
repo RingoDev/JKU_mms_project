@@ -44,6 +44,9 @@ public class Controller {
     public static FFmpegExecutor fFmpegExecutor;
     public TextField inputFile;
     public TextField outputPath;
+    public TextField videoWidth;
+    public TextField videoHeight;
+    public TextField frameRate;
     // opens a file chooser and lets the user choose a video file
     public Button inputChooser;
     // adds a new tasks to the queue
@@ -64,6 +67,8 @@ public class Controller {
     public Button startSelectedTask;
     // removes the selected task
     public Button removeSelectedTask;
+    // create profile button
+    public Button createProfile;
     // for now the user has to manually remove finished tasks
     // as a further improvement the model could maybe automatically remove them?
     public Button removeFinishedTasks;
@@ -81,6 +86,8 @@ public class Controller {
     public String ffprobe_path;
     // Holds all the Profiles so we don't have to search the Database every time
     public Map<String, Profile> profileMap;
+    // textFields for settings
+    public TextField bitrateText, samplerateText, newProfileName;
 
     public Controller() throws IOException {
         this.model = new Model();
@@ -180,14 +187,20 @@ public class Controller {
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
+        chooseVideoCodec.getItems().add("auto");
+        chooseVideoCodec.getItems().add("copy");
         chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseVideoCodec.getSelectionModel().select(0);
         // adding saved AudioCodecs to the ChoiceBox
+        chooseAudioCodec.getItems().add("auto");
+        chooseAudioCodec.getItems().add("copy");
         chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
         // adding available Formats to the ChoiceBox
+        chooseFormat.getItems().add("auto");
+        chooseFormat.getItems().add("copy");
         chooseFormat.getItems().addAll(SQLite.getFormats().stream().map(Format::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseFormat.getSelectionModel().select(0);
@@ -201,7 +214,22 @@ public class Controller {
         chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
-        
+        bitrateText.textProperty().addListener(settingsChangedListener);
+        videoWidth.textProperty().addListener(settingsChangedListener);
+        videoHeight.textProperty().addListener(settingsChangedListener);
+        frameRate.textProperty().addListener(settingsChangedListener);
+        samplerateText.textProperty().addListener(settingsChangedListener);
+
+        // if settings change set them directly in the model
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setAudioCodec(t1);});
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setVideoCodec(t1);});
+        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1));
+        audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveAudio(t1);});
+        subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveSubtitles(t1);});
+        frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
+        videoWidth.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoWidth(integerChanged(t1)));
+        videoHeight.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoHeight(integerChanged(t1)));
+
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);
         // assign fileName property to fileName columns
@@ -266,8 +294,39 @@ public class Controller {
         		}
         	}
         });
+
+        createProfile.setOnAction(event -> {
+        	String name = newProfileName.getText();
+			if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
+			Profile newProfile = getProfile();
+        	if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
+        	if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
+
+        	profileMap.put(name, newProfile);
+        	// TODO: implement SQLite.addProfile(newProfile); so we can add the new profile to the database
+        	chooseProfile.getItems().add(name);
+        	chooseProfile.getSelectionModel().select(name);
+        	chooseProfile.getItems().remove("Custom");
+        	System.out.println("Saved profile as " + name);
+        });
     }
-    
+
+    private static int integerChanged(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private static double doubleChanged(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception e) {
+            return -1.0;
+        }
+    }
+
     public void close() {
         // TODO join ffmpegTask thread with timeout
     }
@@ -276,15 +335,50 @@ public class Controller {
     	System.out.println("Settings were changed");
     	Profile curProfile = getProfile();
     	Map<String,Profile> map = profileMap;
-
-    	// TODO check if current settings match a profile in the database
-    	// if yes: change chooseProfile to the name of the profile (and remove "Custom" from the ComboBox options if necessary)
-    	// if no: change chooseProfile to "Custom" (add "Custom" to the ComboBox options if necessary)
+    	if (map.containsValue(curProfile)) {
+    		Profile p = null;
+    		String name = null;
+    		for (Map.Entry<String, Profile> e : map.entrySet()) {
+    			if (e.getValue().equals(curProfile)) {
+    				p = e.getValue();
+    				name = e.getKey();
+    				break;
+    			}
+    		}
+    		chooseProfile.getItems().remove("Custom");
+    		chooseProfile.getSelectionModel().select(name);
+    	} else {
+    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
+    		chooseProfile.getSelectionModel().select("Custom");
+    	}
 	}
     
     public Profile getProfile() {
-    	// TODO: create a profile object from all currently selected settings
-    	return null;
+    	String profileName = newProfileName.getText();
+    	String format = chooseFormat.getValue();
+    	String videoCodec = chooseVideoCodec.getValue();
+    	String audioCodec = chooseAudioCodec.getValue();
+    	boolean removeSubtitles = subtitlesButton.selectedProperty().get();
+    	boolean removeAudio = audioButton.selectedProperty().get();
+    	int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
+    	int width = videoWidth.getText().isEmpty() ? -1 : Integer.parseInt(videoWidth.getText());
+    	int height = videoHeight.getText().isEmpty() ? -1 : Integer.parseInt(videoHeight.getText());
+    	int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
+    	double framerate = frameRate.getText().isEmpty() ? -1 : Double.parseDouble(frameRate.getText());
+
+    	Profile p = new Profile(profileName);
+    	p.setFormat(format);
+    	p.setVideoCodec(videoCodec);
+    	p.setAudioCodec(audioCodec);
+    	p.setRemoveSubtitles(removeSubtitles);
+    	p.setRemoveAudio(removeAudio);
+    	p.setAudioSampleRate(samplerate);
+    	p.setVideoWidth(width);
+    	p.setVideoHeight(height);
+    	p.setAudioBitRate(bitrate);
+    	p.setVideoFrameRate(framerate);
+
+    	return p;
     }
     
     public void profileChanged() {

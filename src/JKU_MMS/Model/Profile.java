@@ -10,15 +10,15 @@ public class Profile {
     private boolean removeAudio = false;
 
     // AUDIO SETTING
-    private String audioCodec = "copy";
+    private String audioCodec = "auto";
     private int audioSampleRate = -1;
     private int audioBitRate = -1;
     // VIDEO SETTINGS
-    private String VideoCodec = "copy";
+    private String VideoCodec = "auto";
     private double VideoFrameRate = -1;
     private int videoWidth = -1;
     private int videoHeight = -1;
-    private String format = "mp4";  // "mp4, mkv...."
+    private String format = "auto";  // "mp4, mkv...."
     // all encoded videos with this profile will be saved in this directory
     private Path outputPath = Path.of("./");
     private boolean custom = true;
