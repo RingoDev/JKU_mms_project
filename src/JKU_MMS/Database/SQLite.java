@@ -158,13 +158,13 @@ public class SQLite {
     /**
      * Returns all Profiles in the Database.
      *
-     * @return a TreeSet containing all Profiles in the Database sorted into custom and premade and then sorted by name
+     * @return a Hashmap containing all Profiles in the Database sorted into custom and premade and then sorted by name
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static SortedSet<Profile> getAllProfiles() throws SQLException {
+    public static Map<String,Profile> getAllProfiles() throws SQLException {
         //sorts by Type(custom/premade) and then by Name
         //TODO test comparator
-        SortedSet<Profile> set = new TreeSet<>((p1, p2) -> p1.isCustom() == p2.isCustom() ? p1.getName().compareTo(p2.getName()) : p1.isCustom() ? 1 : -1);
+        Map<String,Profile> map = new HashMap<>();
 
         String sql = "SELECT * FROM Profiles";
 
@@ -173,9 +173,11 @@ public class SQLite {
 
         while (result.next()) {
 
-            set.add(extractProfile(result));
+            Profile profile = extractProfile(result);
+
+            map.put(profile.getName(),profile);
         }
-        return set;
+        return map;
     }
 
     /**

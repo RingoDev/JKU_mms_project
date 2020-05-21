@@ -1,6 +1,7 @@
 package JKU_MMS.Model;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class Profile {
     private final String name;
@@ -12,7 +13,6 @@ public class Profile {
     private String audioCodec = "copy";
     private int audioSampleRate = -1;
     private int audioBitRate = -1;
-
     // VIDEO SETTINGS
     private String VideoCodec = "copy";
     private double VideoFrameRate = -1;
@@ -21,8 +21,33 @@ public class Profile {
     private String format = "mp4";  // "mp4, mkv...."
     // all encoded videos with this profile will be saved in this directory
     private Path outputPath = Path.of("./");
-
     private boolean custom = true;
+    public Profile(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return removeSubtitles == profile.removeSubtitles &&
+                removeAudio == profile.removeAudio &&
+                audioSampleRate == profile.audioSampleRate &&
+                audioBitRate == profile.audioBitRate &&
+                Double.compare(profile.VideoFrameRate, VideoFrameRate) == 0 &&
+                videoWidth == profile.videoWidth &&
+                videoHeight == profile.videoHeight &&
+                Objects.equals(audioCodec, profile.audioCodec) &&
+                Objects.equals(VideoCodec, profile.VideoCodec) &&
+                Objects.equals(format, profile.format) &&
+                Objects.equals(outputPath, profile.outputPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(removeSubtitles, removeAudio, audioCodec, audioSampleRate, audioBitRate, VideoCodec, VideoFrameRate, videoWidth, videoHeight, format, outputPath);
+    }
 
     public boolean isCustom() {
         return custom;
@@ -30,10 +55,6 @@ public class Profile {
 
     public void setCustom(boolean custom) {
         this.custom = custom;
-    }
-
-    public Profile(String name) {
-        this.name = name;
     }
 
     public boolean removeSubtitles() {
@@ -125,6 +146,11 @@ public class Profile {
     }
 
     public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
         return name;
     }
 }

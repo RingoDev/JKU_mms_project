@@ -21,7 +21,7 @@
          		<center>
          			<Label text="File Options" BorderPane.Alignment="CENTER">
          				<font>
-                        	<Font name="System Bold" size="12.0" />
+                        	<Font name="System Bold" size="14.0" />
                      	</font>
          			</Label>
          		</center>
@@ -62,7 +62,7 @@
                <top>
                   <Label text="Encoding Options" BorderPane.alignment="CENTER">
                      <font>
-                        <Font name="System Bold" size="12.0" />
+                        <Font name="System Bold" size="14.0" />
                      </font>
                      <padding>
                         <Insets bottom="10.0" />
@@ -70,7 +70,7 @@
                   </Label>
                </top>
                <center>
-                  <HBox BorderPane.alignment="CENTER">
+                  <HBox spacing="10.0" BorderPane.alignment="CENTER">
                      <children>
                         <VBox spacing="10.0">
                            <children>
@@ -80,42 +80,106 @@
                                        <ChoiceBox fx:id="chooseProfile" />
                                  </children>
                               </HBox>
-                              <HBox>
+                              <HBox spacing="10.0">
                                  <children>
-                                    <Label text="Audiocodec:" />
-                                    <ChoiceBox fx:id="chooseAudioCodec" prefWidth="150.0" />
+                                    <Label text="Format: " />
+                                    <ChoiceBox prefWidth="150.0" />
                                  </children>
                               </HBox>
-                              <HBox>
+                           </children>
+                        </VBox>
+                        <VBox spacing="10.0">
+                           <children>
+                              <HBox spacing="10.0">
                                  <children>
-                                    <Label text="VideoCodec:" />
-                                    <ChoiceBox fx:id="chooseVideoCodec" prefWidth="150.0" />
-                                 </children>
-                              </HBox>
-                              <HBox>
-                                 <children>
-                                    <Label text="Remove Subtitles?" />
-                                    <RadioButton fx:id="subtitlesButton" mnemonicParsing="false">
-                                       <padding>
-                                          <Insets left="30.0" />
-                                       </padding>
-                                    </RadioButton>
-                                 </children>
-                              </HBox>
-                              <HBox>
-                                 <children>
-                                    <Label text="Remove Audio?" />
-                                    <RadioButton fx:id="audioButton" mnemonicParsing="false">
-                                       <padding>
-                                          <Insets left="30.0" />
-                                       </padding>
-                                    </RadioButton>
-                                 </children>
-                              </HBox>
-                              <HBox>
-                                 <children>
-                                    <Button fx:id="createProfile" mnemonicParsing="false" prefWidth="150.0" text="save profile as:" />
-                                    <TextField />
+                                    <VBox prefHeight="200.0" spacing="10.0">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <Label text="Video Settings">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <HBox>
+                                             <children>
+                                                <Label text="Remove Subtitles?" />
+                                                <RadioButton fx:id="subtitlesButton" mnemonicParsing="false">
+                                                   <padding>
+                                                      <Insets left="30.0" />
+                                                   </padding>
+                                                </RadioButton>
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="VideoCodec:" />
+                                                <ChoiceBox fx:id="chooseVideoCodec" prefWidth="150.0" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="Width:" />
+                                                <TextField />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="Height:" />
+                                                <TextField />
+                                             </children>
+                                          </HBox>
+                                          <HBox>
+                                             <children>
+                                                <Label text="FrameRate" />
+                                                <TextField />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                    <VBox spacing="10.0">
+                                       <children>
+                                          <HBox alignment="CENTER">
+                                             <children>
+                                                <Label text="Audio Settings">
+                                                   <font>
+                                                      <Font name="System Bold" size="12.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <HBox>
+                                             <children>
+                                                <Label text="Remove Audio?" />
+                                                <RadioButton fx:id="audioButton" mnemonicParsing="false">
+                                                   <padding>
+                                                      <Insets left="30.0" />
+                                                   </padding>
+                                                </RadioButton>
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="AudioCodec:" />
+                                                <ChoiceBox fx:id="chooseAudioCodec" prefWidth="150.0" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="Samplerate:" />
+                                                <TextField />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="10.0">
+                                             <children>
+                                                <Label text="Bitrate" />
+                                                <TextField />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
                                  </children>
                               </HBox>
                            </children>
@@ -130,6 +194,12 @@
          <children>
                <Button fx:id="addTask" prefWidth="150.0" text="Add Task">Add Task</Button>
                <Button fx:id="process" prefWidth="150.0" text="Process Queue">Process Queue</Button>
+            <HBox>
+               <children>
+                  <Button fx:id="createProfile" mnemonicParsing="false" text="save profile as:" />
+                  <TextField />
+               </children>
+            </HBox>
          </children>
       </HBox>
       <TableView fx:id="taskTable">

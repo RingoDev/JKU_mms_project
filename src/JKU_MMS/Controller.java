@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 
 
@@ -72,6 +74,8 @@ public class Controller {
     
     public String ffmpeg_path;
     public String ffprobe_path;
+    // Holds all the Profiles so we don't have to search the Database every time
+    public Map<String, Profile> profileMap;
 
     public Controller() throws IOException {
         this.model = new Model();
@@ -111,6 +115,12 @@ public class Controller {
             // TODO: handle exception and open a popup for the user to set a path
         }
         fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
+
+        try{
+            profileMap = SQLite.getAllProfiles();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -256,13 +266,8 @@ public class Controller {
     public void settingsChanged() {
     	System.out.println("Settings were changed");
     	Profile curProfile = getProfile();
-    	SortedSet<Profile> profiles;
-    	try {
-			profiles = SQLite.getAllProfiles();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
+    	Map<String,Profile> map = profileMap;
+
     	// TODO check if current settings match a profile in the database
     	// if yes: change chooseProfile to the name of the profile (and remove "Custom" from the ComboBox options if necessary)
     	// if no: change chooseProfile to "Custom" (add "Custom" to the ComboBox options if necessary)
@@ -274,7 +279,8 @@ public class Controller {
     }
     
     public void profileChanged() {
-    	System.out.println("Profile was changed to " + chooseProfile.getValue());
+    	System.out.println("Profile was changed to " + profileMap.get(chooseProfile.getValue()));
+
 		// TODO fill all ComboBoxes and RadioButtons with the settings of the newly selected profile
 	}
 }
