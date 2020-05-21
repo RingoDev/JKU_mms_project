@@ -197,7 +197,7 @@
             <HBox>
                <children>
                   <Button fx:id="createProfile" mnemonicParsing="false" text="save profile as:" />
-                  <TextField />
+                  <TextField fx:id="newProfileName"/>
                </children>
             </HBox>
          </children>
