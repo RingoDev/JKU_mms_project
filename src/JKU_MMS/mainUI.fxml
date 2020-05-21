@@ -169,13 +169,13 @@
                                           <HBox spacing="10.0">
                                              <children>
                                                 <Label text="Samplerate:" />
-                                                <TextField />
+                                                <TextField fx:id="samplerateText"/>
                                              </children>
                                           </HBox>
                                           <HBox spacing="10.0">
                                              <children>
                                                 <Label text="Bitrate" />
-                                                <TextField />
+                                                <TextField fx:id="bitrateText"/>
                                              </children>
                                           </HBox>
                                        </children>
