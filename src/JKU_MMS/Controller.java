@@ -300,7 +300,12 @@ public class Controller {
         	if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
 
         	profileMap.put(name, newProfile);
-        	// TODO: implement SQLite.addProfile(newProfile); so we can add the new profile to the database
+
+            try {
+                SQLite.addProfile(newProfile);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         	chooseProfile.getItems().add(name);
         	chooseProfile.getSelectionModel().select(name);
         	chooseProfile.getItems().remove("Custom");
@@ -309,7 +314,7 @@ public class Controller {
 
 
 
-        // Textformater that only permits non-negativ Integers as Values
+        // Textformatter that only permits non-negativ Integers as Values
         UnaryOperator<TextFormatter.Change> integerFilter = change -> {
             String newText = change.getControlNewText();
             if (newText.matches("([1-9][0-9]*)?")) {

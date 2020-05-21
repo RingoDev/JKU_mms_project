@@ -72,7 +72,7 @@ public class SQLite {
         profile.setOutputPath(Path.of("./output"));
         profile.setFormat("mp4");
 
-        return savePremadeProfile(profile);
+        return addPremadeProfile(profile);
     }
 
     /**
@@ -82,7 +82,7 @@ public class SQLite {
      * @return true if saving was successful
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean saveCustomProfile(Profile profile) throws SQLException {
+    public static boolean addProfile(Profile profile) throws SQLException {
         return saveProfile(profile, true);
     }
 
@@ -93,7 +93,7 @@ public class SQLite {
      * @return true if saving was successful
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean savePremadeProfile(Profile profile) throws SQLException {
+    public static boolean addPremadeProfile(Profile profile) throws SQLException {
         return saveProfile(profile, false);
     }
 
