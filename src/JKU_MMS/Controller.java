@@ -87,7 +87,7 @@ public class Controller {
     // Holds all the Profiles so we don't have to search the Database every time
     public Map<String, Profile> profileMap;
     // textFields for settings
-    public TextField bitrateText, widthText, heightText, framerateText, samplerateText, newProfileName;
+    public TextField bitrateText, samplerateText, newProfileName;
 
     public Controller() throws IOException {
         this.model = new Model();
@@ -215,9 +215,9 @@ public class Controller {
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
         bitrateText.textProperty().addListener(settingsChangedListener);
-        widthText.textProperty().addListener(settingsChangedListener);
-        heightText.textProperty().addListener(settingsChangedListener);
-        framerateText.textProperty().addListener(settingsChangedListener);
+        videoWidth.textProperty().addListener(settingsChangedListener);
+        videoHeight.textProperty().addListener(settingsChangedListener);
+        frameRate.textProperty().addListener(settingsChangedListener);
         samplerateText.textProperty().addListener(settingsChangedListener);
 
         // if settings change set them directly in the model
@@ -361,10 +361,10 @@ public class Controller {
     	boolean removeSubtitles = subtitlesButton.selectedProperty().get();
     	boolean removeAudio = audioButton.selectedProperty().get();
     	int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
-    	int width = widthText.getText().isEmpty() ? -1 : Integer.parseInt(widthText.getText());
-    	int height = heightText.getText().isEmpty() ? -1 : Integer.parseInt(heightText.getText());
+    	int width = videoWidth.getText().isEmpty() ? -1 : Integer.parseInt(videoWidth.getText());
+    	int height = videoHeight.getText().isEmpty() ? -1 : Integer.parseInt(videoHeight.getText());
     	int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
-    	double framerate = framerateText.getText().isEmpty() ? -1 : Double.parseDouble(framerateText.getText());
+    	double framerate = frameRate.getText().isEmpty() ? -1 : Double.parseDouble(frameRate.getText());
 
     	Profile p = new Profile(profileName);
     	p.setFormat(format);
