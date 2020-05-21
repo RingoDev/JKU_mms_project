@@ -122,19 +122,19 @@
                                           <HBox spacing="10.0">
                                              <children>
                                                 <Label text="Width:" />
-                                                <TextField />
+                                                <TextField fx:id="videoWidth"/>
                                              </children>
                                           </HBox>
                                           <HBox spacing="10.0">
                                              <children>
                                                 <Label text="Height:" />
-                                                <TextField />
+                                                <TextField fx:id="videoHeight"/>
                                              </children>
                                           </HBox>
                                           <HBox>
                                              <children>
                                                 <Label text="FrameRate" />
-                                                <TextField />
+                                                <TextField fx:id="frameRate" />
                                              </children>
                                           </HBox>
                                        </children>

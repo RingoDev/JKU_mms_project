@@ -3,6 +3,7 @@ package JKU_MMS.Model;
 import JKU_MMS.Controller;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import net.bramp.ffmpeg.builder.FFmpegOutputBuilder;
 import net.bramp.ffmpeg.job.FFmpegJob;
 import net.bramp.ffmpeg.progress.Progress;
 import net.bramp.ffmpeg.progress.ProgressListener;
@@ -37,7 +38,7 @@ public class Task implements Runnable {
     }
 
     /**
-     * Builds the job without an progress listener
+     * Builds the job with a progress listener to the {@link StringProperty} progress
      * @param executor
      */
     public void build(FFmpegExecutor executor) {
@@ -130,7 +131,33 @@ public class Task implements Runnable {
      * @param profile
      */
     private static void applyProfile(Task task, Profile profile) {
-        task.builder.addOutput(Paths.get(profile.getOutputPath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
-        // TODO
+        FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
+
+        if (profile.getVideoCodec().equals("copy")) {
+            b.setVideoCodec("copy");
+        } else if (! profile.getVideoCodec().equals("auto")) {
+            b.setVideoCodec(profile.getVideoCodec().split(" - ")[0]);
+            System.out.println("video codec set to: " + profile.getVideoCodec().split(" - ")[0]);
+        }
+
+        if (profile.getAudioCodec().equals("copy")) {
+            b.setAudioCodec("copy");
+        } else {
+            System.out.println(profile.getAudioCodec());
+        }
+
+        if (profile.removeAudio()) {
+            b.disableAudio();
+        }
+
+        if (profile.removeSubtitles()) {
+            b.disableSubtitle();
+        }
+
+        System.out.println(profile.getVideoHeight());
+        System.out.println(profile.getVideoWidth());
+        System.out.println(profile.getVideoFrameRate());
+
+        task.builder.addOutput(b);
     }
 }

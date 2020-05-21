@@ -44,6 +44,9 @@ public class Controller {
     public static FFmpegExecutor fFmpegExecutor;
     public TextField inputFile;
     public TextField outputPath;
+    public TextField videoWidth;
+    public TextField videoHeight;
+    public TextField frameRate;
     // opens a file chooser and lets the user choose a video file
     public Button inputChooser;
     // adds a new tasks to the queue
@@ -180,14 +183,20 @@ public class Controller {
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
+        chooseVideoCodec.getItems().add("auto");
+        chooseVideoCodec.getItems().add("copy");
         chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseVideoCodec.getSelectionModel().select(0);
         // adding saved AudioCodecs to the ChoiceBox
+        chooseAudioCodec.getItems().add("auto");
+        chooseAudioCodec.getItems().add("copy");
         chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
         // adding available Formats to the ChoiceBox
+        chooseFormat.getItems().add("auto");
+        chooseFormat.getItems().add("copy");
         chooseFormat.getItems().addAll(SQLite.getFormats().stream().map(Format::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseFormat.getSelectionModel().select(0);
@@ -201,7 +210,17 @@ public class Controller {
         chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
-        
+
+        // if settings change set them directly in the model
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setAudioCodec(t1);});
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setVideoCodec(t1);});
+        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1));
+        audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveAudio(t1);});
+        subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveSubtitles(t1);});
+        frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
+        videoWidth.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoWidth(integerChanged(t1)));
+        videoHeight.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoHeight(integerChanged(t1)));
+
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);
         // assign fileName property to fileName columns
@@ -266,6 +285,22 @@ public class Controller {
         		}
         	}
         });
+    }
+
+    private static int integerChanged(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private static double doubleChanged(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception e) {
+            return -1.0;
+        }
     }
     
     public void close() {
