@@ -51,7 +51,7 @@ public class Controller {
     // starts processing all tasks enqueued in mode.tasks
     public Button process;
     // dropdown menu which lets user select profile for task
-    public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
+    public ChoiceBox<Object> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
     public ChoiceBox<Codec> chooseVideoCodec = new ChoiceBox<>();
     // dropdown menu which lets user select AudioCodec for task
@@ -178,7 +178,7 @@ public class Controller {
         //TODO when Profile is selected, display corresponding Settings as Standard
 
         // adding saved Profiles to the ChoiceBox
-        ObservableList items = FXCollections.observableArrayList();
+        ObservableList<Object> items = FXCollections.observableArrayList();
         items.addAll(profileMap.values().stream().filter(Profile::isCustom).map(Profile::getName).collect(Collectors.toList()));
         items.add(new Separator());
         items.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).map(Profile::getName).collect(Collectors.toList()));
@@ -277,7 +277,7 @@ public class Controller {
         	Task t = model.tasks.get(idx);
         	if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
         		// TODO: stop a running task
-        		// in case you can not stop a running ffmpeg operation with this wrapper just throw an exception here
+        		// in case you can not stop a running FFmpeg operation with this wrapper just throw an exception here
         		System.out.println("Stopping task: " + model.tasks.get(idx).fileName.getValue());
         	}
         	System.out.println("Removing task: " + model.tasks.get(idx).fileName.getValue());
@@ -298,7 +298,8 @@ public class Controller {
         	String name = newProfileName.getText();
 			if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
 			Profile newProfile = getProfile();
-        	if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
+			// we should allow double Settings for Simplicity
+        	//if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
         	if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
 
         	profileMap.put(name, newProfile);
@@ -316,7 +317,7 @@ public class Controller {
 
 
 
-        // Textformatter that only permits non-negativ Integers as Values
+        // TextFormatter that only permits non-negativ Integers as Values
         UnaryOperator<TextFormatter.Change> integerFilter = change -> {
             String newText = change.getControlNewText();
             if (newText.matches("([1-9][0-9]*)?")) {
