@@ -3,6 +3,13 @@ package JKU_MMS.Settings;
 public class Format {
 
     String formatName;
+    String description;
+    Boolean muxing;
+    Boolean demuxing;
+
+    public Format(String formatName) {
+        this.formatName = formatName;
+    }
 
     public String getFormatName() {
         return formatName;
@@ -36,15 +43,10 @@ public class Format {
         this.demuxing = demuxing;
     }
 
-    String description;
-    Boolean muxing;
-    Boolean demuxing;
-
-    public Format(String formatName){
-        this.formatName = formatName;
-    }
-
-    public String toString(){
-        return formatName + " - " + description;
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.formatName).append(" - ").append(description);
+        if (sb.length() > 40) sb.delete(40, sb.length() - 1).append("...");
+        return sb.toString();
     }
 }

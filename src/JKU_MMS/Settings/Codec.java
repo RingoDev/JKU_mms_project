@@ -2,49 +2,49 @@ package JKU_MMS.Settings;
 
 public class Codec {
 
-    String CodecName;
-    String Description;
-    Boolean Decoding;
-    Boolean Encoding;
+    String codecName;
+    String description;
+    Boolean decoding;
+    Boolean encoding;
     CodecType codecType;
-    Boolean IntraCodec;
-    Boolean LossyCompression;
-    Boolean LosslessCompression;
+    Boolean intraCodec;
+    Boolean lossyCompression;
+    Boolean losslessCompression;
 
     public Codec(String CodecName) {
-        this.CodecName = CodecName;
+        this.codecName = CodecName;
     }
 
     public String getCodecName() {
-        return CodecName;
+        return codecName;
     }
 
     public void setCodecName(String codecName) {
-        CodecName = codecName;
+        this.codecName = codecName;
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description) {
-        Description = description;
+        this.description = description;
     }
 
     public Boolean getDecoding() {
-        return Decoding;
+        return decoding;
     }
 
     public void setDecoding(Boolean decoding) {
-        Decoding = decoding;
+        this.decoding = decoding;
     }
 
     public Boolean getEncoding() {
-        return Encoding;
+        return encoding;
     }
 
     public void setEncoding(Boolean encoding) {
-        Encoding = encoding;
+        this.encoding = encoding;
     }
 
     public CodecType getCodecType() {
@@ -56,31 +56,34 @@ public class Codec {
     }
 
     public Boolean getIntraCodec() {
-        return IntraCodec;
+        return intraCodec;
     }
 
     public void setIntraCodec(Boolean intraCodec) {
-        IntraCodec = intraCodec;
+        this.intraCodec = intraCodec;
     }
 
     public Boolean getLossyCompression() {
-        return LossyCompression;
+        return lossyCompression;
     }
 
     public void setLossyCompression(Boolean lossyCompression) {
-        LossyCompression = lossyCompression;
+        this.lossyCompression = lossyCompression;
     }
 
     public Boolean getLosslessCompression() {
-        return LosslessCompression;
+        return losslessCompression;
     }
 
     public void setLosslessCompression(Boolean losslessCompression) {
-        LosslessCompression = losslessCompression;
+        this.losslessCompression = losslessCompression;
     }
 
     public String toString() {
-        return this.CodecName + " - " + Description;
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.codecName).append(" - ").append(description);
+        if (sb.length() > 40) sb.delete(40, sb.length()-1).append("...");
+        return sb.toString();
     }
 
     public enum CodecType {
