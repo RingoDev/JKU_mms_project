@@ -1,6 +1,9 @@
 package JKU_MMS.Database;
 
 import JKU_MMS.Model.Profile;
+import JKU_MMS.Settings.Codec;
+import JKU_MMS.Settings.Format;
+import net.bramp.ffmpeg.probe.FFmpegStream;
 import org.apache.tools.ant.types.resources.Sort;
 
 import java.io.BufferedReader;
@@ -10,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.text.Normalizer;
 import java.util.*;
 
 public class SQLite {
@@ -161,10 +165,10 @@ public class SQLite {
      * @return a Hashmap containing all Profiles in the Database sorted into custom and premade and then sorted by name
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static Map<String,Profile> getAllProfiles() throws SQLException {
+    public static Map<String, Profile> getAllProfiles() throws SQLException {
         //sorts by Type(custom/premade) and then by Name
         //TODO test comparator
-        Map<String,Profile> map = new HashMap<>();
+        Map<String, Profile> map = new HashMap<>();
 
         String sql = "SELECT * FROM Profiles";
 
@@ -175,7 +179,7 @@ public class SQLite {
 
             Profile profile = extractProfile(result);
 
-            map.put(profile.getName(),profile);
+            map.put(profile.getName(), profile);
         }
         return map;
     }
@@ -267,39 +271,67 @@ public class SQLite {
     }
 
     /**
-     * Queries the Database for all VideoCodecs and returns the Descriptions alphabetically sorted.
-     * @return a TreeSet with the Available VideoCodec Descriptions
+     * Queries the Database for all VideoCodecs and returns the VideoCodecs alphabetically sorted.
+     *
+     * @return a TreeSet with the Available VideoCodecs
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static SortedSet<String> getVideoCodecDescriptions() throws SQLException {
-        SortedSet<String> set = new TreeSet<>();
-        String sql = "SELECT Description FROM AvailableCodecs WHERE CodecType=0";
+    public static SortedSet<Codec> getVideoCodecs() throws SQLException {
+        SortedSet<Codec> set = new TreeSet<>(Comparator.comparing(Codec::getCodecName));
+        String sql = "SELECT * FROM AvailableCodecs WHERE CodecType=0";
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery(sql);
         while (result.next()) {
-            set.add(result.getString("Description"));
+
+            Codec codec = convert(result);
+            set.add(codec);
         }
         return set;
     }
 
     /**
-     * Queries the Database for all AudioCodecs and returns the Descriptions alphabetically sorted.
-     * @return a TreeSet with the Available AudioCodec Descriptions
+     * Queries the Database for all AudioCodecs and returns the AudioCodecs alphabetically sorted.
+     *
+     * @return a TreeSet with the Available AudioCodecs
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static SortedSet<String> getAudioCodecDescriptions() throws SQLException {
-        SortedSet<String> set = new TreeSet<>();
-        String sql = "SELECT Description FROM AvailableCodecs WHERE CodecType=1";
+    public static SortedSet<Codec> getAudioCodecs() throws SQLException {
+        SortedSet<Codec> set = new TreeSet<>(Comparator.comparing(Codec::getCodecName));
+        String sql = "SELECT * FROM AvailableCodecs WHERE CodecType=1";
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery(sql);
         while (result.next()) {
-            set.add(result.getString("Description"));
+
+            Codec codec = convert(result);
+            set.add(codec);
+        }
+        return set;
+    }
+
+    /**
+     * Queries the Database for all Formats and returns the Formats alphabetically sorted.
+     *
+     * @return a TreeSet with the Available Formats Descriptions
+     * @throws SQLException if a Database error occurs or if the connection is closed
+     */
+    public static SortedSet<Format> getFormats() throws SQLException {
+        SortedSet<Format> set = new TreeSet<>(Comparator.comparing(Format::getFormatName));
+        String sql = "SELECT * FROM AvailableFormats";
+        Statement statement = conn.createStatement();
+        ResultSet result = statement.executeQuery(sql);
+        while (result.next()) {
+            Format format = new Format(result.getString("Format"));
+            format.setDescription(result.getString("Description"));
+            format.setDemuxing(result.getInt("Demuxing") != 0);
+            format.setMuxing(result.getInt("Muxing") != 0);
+            set.add(format);
         }
         return set;
     }
 
     /**
      * deletes all codecs in Database
+     *
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void deleteCodecs() throws SQLException {
@@ -315,48 +347,59 @@ public class SQLite {
 
     /**
      * was used to inser codec into Database from String
+     *
      * @param codec
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static void addCodec(String codec) throws SQLException {
+    public static void add(String codec) throws SQLException {
 
-        String sql = "INSERT INTO AvailableCodecs (CodecName,Description,Decoding,Encoding,CodecType," +
-                "IntraCodec,LossyCompression,LosslessCompression)" +
-                " VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO AvailableFormats (Format,Description,Demuxing,Muxing)" +
+                " VALUES ( ?, ?, ?, ?)";
 
-        String codecName = codec.replaceAll("(\\s\\s.+?$)","").substring(8);
-        String description = codec.replaceAll("(^.*?\\s\\s+)","");
+        String flags = codec.substring(1, 3);
+        codec = codec.substring(4);
+        String codecName = codec.replaceAll("(\\s\\s.+?$)", "");
+        String description = codec.replaceAll("(^.*?\\s\\s+)", "");
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, codecName);
         statement.setString(2, description);
-        statement.setInt(3, codec.charAt(1) == '.' ? 0 : 1);
-        statement.setInt(4, codec.charAt(2) == '.' ? 0 : 1);
-        statement.setInt(5, codec.charAt(3) == 'V' ? 0 : codec.charAt(3) == 'A' ? 1 : 2);//0: Video 1: Audio 2: Subtitles
-        statement.setInt(6, codec.charAt(4) == '.' ? 0 : 1);
-        statement.setInt(7, codec.charAt(5) == '.' ? 0 : 1);
-        statement.setInt(8, codec.charAt(6) == '.' ? 0 : 1);
+        statement.setInt(3, codec.charAt(1) == ' ' ? 0 : 1);
+        statement.setInt(4, codec.charAt(2) == ' ' ? 0 : 1);
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
-            System.out.println("A new codec was inserted successfully!");
+            System.out.println("A new format was inserted successfully!");
         }
     }
 
 
     /**
      * was used to read in codecs from file
+     *
      * @throws IOException
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void readFile() throws IOException, SQLException {
         BufferedReader reader = new BufferedReader(new FileReader(
-                Paths.get("data/codecs.txt").toFile()));
+                Paths.get("data/formats.txt").toFile()));
         String line = reader.readLine();
         while (line != null) {
-            addCodec(line);
+            add(line);
             line = reader.readLine();
         }
         reader.close();
+    }
+
+    public static Codec convert(ResultSet result) throws SQLException {
+        Codec codec = new Codec(result.getString("CodecName"));
+        codec.setDescription(result.getString("Description"));
+        codec.setDecoding(result.getInt("Decoding") != 0);
+        codec.setEncoding(result.getInt("Encoding") != 0);
+        codec.setCodecType(result.getInt("CodecType") == 0 ? Codec.CodecType.VIDEO : Codec.CodecType.AUDIO);
+        codec.setIntraCodec(result.getInt("IntraCodec") != 0);
+        codec.setLossyCompression(result.getInt("LossyCompression") != 0);
+        codec.setLosslessCompression(result.getInt("LosslessCompression") != 0);
+        return codec;
     }
 }

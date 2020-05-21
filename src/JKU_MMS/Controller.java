@@ -5,6 +5,8 @@ import JKU_MMS.Database.SQLite;
 import JKU_MMS.Model.Model;
 import JKU_MMS.Model.Profile;
 import JKU_MMS.Model.Task;
+import JKU_MMS.Settings.Codec;
+import JKU_MMS.Settings.Format;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -30,6 +32,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 
 public class Controller {
@@ -53,6 +56,8 @@ public class Controller {
     public ChoiceBox<String> chooseVideoCodec = new ChoiceBox<>();
     // dropdown menu which lets user select AudioCodec for task
     public ChoiceBox<String> chooseAudioCodec = new ChoiceBox<>();
+    // dropdown menu which lets user select Format for task
+    public ChoiceBox<String> chooseFormat = new ChoiceBox<>();
     // opens a directory chooser and lets the user define the outputFolder
     public Button outputChooser;
     // starts the selected task
@@ -175,13 +180,17 @@ public class Controller {
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
-        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecDescriptions());
+        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseVideoCodec.getSelectionModel().select(0);
         // adding saved AudioCodecs to the ChoiceBox
-        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecDescriptions());
+        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs().stream().map(Codec::toString).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
+        // adding available Formats to the ChoiceBox
+        chooseFormat.getItems().addAll(SQLite.getFormats().stream().map(Format::toString).collect(Collectors.toList()));
+        // display the first Value in list as standard select
+        chooseFormat.getSelectionModel().select(0);
 
         // add listener to chooseProfile
         ChangeListener<Object> profileChangedListener = (observable, oldValue, newValue) -> profileChanged();

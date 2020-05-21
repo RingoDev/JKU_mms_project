@@ -83,7 +83,7 @@
                               <HBox spacing="10.0">
                                  <children>
                                     <Label text="Format: " />
-                                    <ChoiceBox prefWidth="150.0" />
+                                    <ChoiceBox fx:id="chooseFormat" prefWidth="150.0" />
                                  </children>
                               </HBox>
                            </children>
