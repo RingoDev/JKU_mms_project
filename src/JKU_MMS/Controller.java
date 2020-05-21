@@ -9,14 +9,10 @@ import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.util.converter.IntegerStringConverter;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
@@ -32,6 +28,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 
@@ -309,6 +306,30 @@ public class Controller {
         	chooseProfile.getItems().remove("Custom");
         	System.out.println("Saved profile as " + name);
         });
+
+
+
+        // Textformater that only permits non-negativ Integers as Values
+        UnaryOperator<TextFormatter.Change> integerFilter = change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("([1-9][0-9]*)?")) {
+                return change;
+            }
+            return null;
+        };
+
+        videoHeight.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        videoWidth.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        samplerateText.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        videoWidth.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        bitrateText.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        frameRate.setTextFormatter(
+                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
     }
 
     private static int integerChanged(String value) {
