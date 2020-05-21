@@ -3,17 +3,14 @@ package JKU_MMS.Database;
 import JKU_MMS.Model.Profile;
 import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
-import net.bramp.ffmpeg.probe.FFmpegStream;
-import org.apache.tools.ant.types.resources.Sort;
+
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.text.Normalizer;
 import java.util.*;
 
 public class SQLite {
@@ -70,6 +67,15 @@ public class SQLite {
 
         Profile profile = new Profile("Sample");
         profile.setOutputPath(Path.of("./output"));
+        profile.setVideoHeight(720);
+        profile.setVideoWidth(1280);
+        profile.setVideoFrameRate(30);
+        profile.setAudioBitRate(196608);
+        profile.setVideoCodec("hevc");
+        profile.setRemoveAudio(false);
+        profile.setRemoveSubtitles(false);
+        profile.setAudioSampleRate(48000);
+        profile.setAudioCodec("mp3");
         profile.setFormat("mp4");
 
         return addPremadeProfile(profile);

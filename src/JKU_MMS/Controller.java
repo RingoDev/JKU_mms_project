@@ -136,9 +136,7 @@ public class Controller {
     private void initialize() throws SQLException {
         outputPath.setText(model.currentSettings.getOutputPath().toString());
 
-        outputPath.textProperty().addListener((observable, oldValue, newValue) -> {
-            model.currentSettings.setOutputPath(Paths.get(newValue));
-        });
+        outputPath.textProperty().addListener((observable, oldValue, newValue) -> model.currentSettings.setOutputPath(Paths.get(newValue)));
 
         inputChooser.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
@@ -218,11 +216,11 @@ public class Controller {
         samplerateText.textProperty().addListener(settingsChangedListener);
 
         // if settings change set them directly in the model
-        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setAudioCodec(t1);});
-        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> {model.currentSettings.setVideoCodec(t1);});
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1));
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoCodec(t1));
         chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1));
-        audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveAudio(t1);});
-        subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> {model.currentSettings.setRemoveSubtitles(t1);});
+        audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveAudio(t1));
+        subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveSubtitles(t1));
         frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
         videoWidth.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoWidth(integerChanged(t1)));
         videoHeight.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoHeight(integerChanged(t1)));

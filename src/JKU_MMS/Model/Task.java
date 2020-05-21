@@ -15,21 +15,22 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 public class Task implements Runnable {
-    private final FFmpegBuilder builder;
-    private FFmpegJob job;
     public final StringProperty fileName;
     public final StringProperty profileName;
     public final StringProperty progress;
-
+    private final FFmpegBuilder builder;
     private final double videoDuration;
+    private FFmpegJob job;
 
     /**
-	 * Initializes a new task object
-	 * @param builder 
-	 * @param fileName
-	 * @param profileName
-	 */
-     private Task(FFmpegBuilder builder, String fileName, String profileName, double videoDuration) {
+     * Initializes a new task object
+     *
+     * @param builder
+     * @param fileName
+     * @param profileName
+     * @param videoDuration
+     */
+    private Task(FFmpegBuilder builder, String fileName, String profileName, double videoDuration) {
         this.builder = builder;
         progress = new SimpleStringProperty("Not started");
         this.fileName = new SimpleStringProperty(fileName);
@@ -38,55 +39,9 @@ public class Task implements Runnable {
     }
 
     /**
-     * Builds the job with a progress listener to the {@link StringProperty} progress
-     * @param executor
-     */
-    public void build(FFmpegExecutor executor) {
-        job = executor.createJob(builder, new ProgressListener() {
-			@Override
-			public void progress(Progress arg0) {
-                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)) + "%");
-			}
-		});
-    }
-
-    /**
-     * Builds the job with an progress listener (so progress can be retrieved during execution)
-     * @param executor
-     * @param progressListener
-     */
-    public void build(FFmpegExecutor executor, ProgressListener progressListener) {
-        FFmpegJob job = executor.createJob(builder, progressListener);
-    }
-
-    /**
-     * Starts the computation of the job. This should be started in a thread.
-     * @throws IllegalStateException if task.build has not been called yet
-     */
-    @Override
-    public void run() {
-        if (job == null) {
-            throw new IllegalStateException("Job has to be built before being started");
-        }
-        this.job.run();
-        progress.setValue("Finished");
-    }
-
-    /**
-     * Retrieve current state of task
-     * @return Returns {@link FFmpegJob.State}
-     */
-    public FFmpegJob.State getState() {
-        return job.getState();
-    }
-
-    public FFmpegJob getJob() {
-        return job;
-    }
-
-    /**
      * Creates a taks from an file and profile
-     * @param input File path of a video
+     *
+     * @param input   File path of a video
      * @param profile Profile with settings that will be applied to the video
      * @return Returns a new {@link Task}
      * @throws IOException Throws an {@link IOException} if the input file could not be found
@@ -97,8 +52,9 @@ public class Task implements Runnable {
 
     /**
      * Creates a taks from an file and profile
-     * @param filePath File path of a video
-     * @param profile Profile with settings that will be applied to the video
+     *
+     * @param filePath   File path of a video
+     * @param profile    Profile with settings that will be applied to the video
      * @param BUILD_FLAG If set to true the tasks will be build with the {@link FFmpegExecutor} set in the {@link Controller}
      * @return Returns a new {@link Task}
      * @throws IOException Throws an {@link IOException} if the input file could not be found
@@ -127,6 +83,7 @@ public class Task implements Runnable {
 
     /**
      * Applies a profile to a task
+     *
      * @param task
      * @param profile
      */
@@ -135,7 +92,7 @@ public class Task implements Runnable {
 
         if (profile.getVideoCodec().equals("copy")) {
             b.setVideoCodec("copy");
-        } else if (! profile.getVideoCodec().equals("auto")) {
+        } else if (!profile.getVideoCodec().equals("auto")) {
             b.setVideoCodec(profile.getVideoCodec().split(" - ")[0]);
             System.out.println("video codec set to: " + profile.getVideoCodec().split(" - ")[0]);
         }
@@ -159,5 +116,56 @@ public class Task implements Runnable {
         System.out.println(profile.getVideoFrameRate());
 
         task.builder.addOutput(b);
+    }
+
+    /**
+     * Builds the job with a progress listener to the {@link StringProperty} progress
+     *
+     * @param executor
+     */
+    public void build(FFmpegExecutor executor) {
+        job = executor.createJob(builder, new ProgressListener() {
+            @Override
+            public void progress(Progress arg0) {
+                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)) + "%");
+            }
+        });
+    }
+
+    /**
+     * Builds the job with an progress listener (so progress can be retrieved during execution)
+     *
+     * @param executor
+     * @param progressListener
+     */
+    public void build(FFmpegExecutor executor, ProgressListener progressListener) {
+        FFmpegJob job = executor.createJob(builder, progressListener);
+    }
+
+    /**
+     * Starts the computation of the job. This should be started in a thread.
+     *
+     * @throws IllegalStateException if task.build has not been called yet
+     */
+    @Override
+    public void run() {
+        if (job == null) {
+            throw new IllegalStateException("Job has to be built before being started");
+        }
+        this.job.run();
+        progress.setValue("Finished");
+    }
+
+    /**
+     * Retrieve current state of task
+     *
+     * @return Returns {@link FFmpegJob.State}
+     */
+    public FFmpegJob.State getState() {
+        return job.getState();
+    }
+
+    public FFmpegJob getJob() {
+        return job;
     }
 }
