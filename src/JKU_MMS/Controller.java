@@ -8,6 +8,8 @@ import JKU_MMS.Model.Task;
 import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
@@ -178,7 +180,11 @@ public class Controller {
         //TODO when Profile is selected, display corresponding Settings as Standard
 
         // adding saved Profiles to the ChoiceBox
-        chooseProfile.getItems().addAll(SQLite.getProfileNames());
+        ObservableList items = FXCollections.observableArrayList();
+        items.addAll(profileMap.values().stream().filter(Profile::isCustom).map(Profile::getName).collect(Collectors.toList()));
+        items.add(new Separator());
+        items.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).map(Profile::getName).collect(Collectors.toList()));
+        chooseProfile.getItems().addAll(items);
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
