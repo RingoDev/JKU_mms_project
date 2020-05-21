@@ -68,7 +68,7 @@ public class Task implements Runnable {
             throw new IllegalStateException("Job has to be built before being started");
         }
         this.job.run();
-        progress.setValue("100%");
+        progress.setValue("Finished");
     }
 
     /**
