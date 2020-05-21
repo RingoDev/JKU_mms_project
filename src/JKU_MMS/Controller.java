@@ -64,6 +64,8 @@ public class Controller {
     public Button startSelectedTask;
     // removes the selected task
     public Button removeSelectedTask;
+    // create profile button
+    public Button createProfile;
     // for now the user has to manually remove finished tasks
     // as a further improvement the model could maybe automatically remove them?
     public Button removeFinishedTasks;
@@ -81,6 +83,8 @@ public class Controller {
     public String ffprobe_path;
     // Holds all the Profiles so we don't have to search the Database every time
     public Map<String, Profile> profileMap;
+    // textFields for settings
+    public TextField bitrateText, widthText, heightText, framerateText, samplerateText, newProfileName;
 
     public Controller() throws IOException {
         this.model = new Model();
@@ -201,6 +205,11 @@ public class Controller {
         chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
+        bitrateText.textProperty().addListener(settingsChangedListener);
+        widthText.textProperty().addListener(settingsChangedListener);
+        heightText.textProperty().addListener(settingsChangedListener);
+        framerateText.textProperty().addListener(settingsChangedListener);
+        samplerateText.textProperty().addListener(settingsChangedListener);
         
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);
@@ -266,6 +275,19 @@ public class Controller {
         		}
         	}
         });
+        
+        createProfile.setOnAction(event -> {
+        	String name = newProfileName.getText();
+			if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
+			Profile newProfile = getProfile();
+        	if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
+        	if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
+        	
+        	profileMap.put(name, newProfile);
+        	// TODO: implement SQLite.addProfile(newProfile); so we can add the new profile to the database
+        	chooseProfile.getItems().add(name);
+        	System.out.println("Saved profile as " + name);
+        });
     }
     
     public void close() {
@@ -283,8 +305,31 @@ public class Controller {
 	}
     
     public Profile getProfile() {
-    	// TODO: create a profile object from all currently selected settings
-    	return null;
+    	String profileName = newProfileName.getText();
+    	String format = chooseFormat.getValue();
+    	String videoCodec = chooseVideoCodec.getValue();
+    	String audioCodec = chooseAudioCodec.getValue();
+    	boolean removeSubtitles = subtitlesButton.selectedProperty().get();
+    	boolean removeAudio = audioButton.selectedProperty().get();
+    	int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
+    	int width = widthText.getText().isEmpty() ? -1 : Integer.parseInt(widthText.getText());
+    	int height = heightText.getText().isEmpty() ? -1 : Integer.parseInt(heightText.getText());
+    	int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
+    	double framerate = framerateText.getText().isEmpty() ? -1 : Double.parseDouble(framerateText.getText());
+    	
+    	Profile p = new Profile(profileName);
+    	p.setFormat(format);
+    	p.setVideoCodec(videoCodec);
+    	p.setAudioCodec(audioCodec);
+    	p.setRemoveSubtitles(removeSubtitles);
+    	p.setRemoveAudio(removeAudio);
+    	p.setAudioSampleRate(samplerate);
+    	p.setVideoWidth(width);
+    	p.setVideoHeight(height);
+    	p.setAudioBitRate(bitrate);
+    	p.setVideoFrameRate(framerate);
+    	
+    	return p;
     }
     
     public void profileChanged() {
