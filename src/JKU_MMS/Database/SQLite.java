@@ -17,22 +17,15 @@ public class SQLite {
 
     private final static String DB_PATH = "./data/data.db";
     private final static String DB_URL = "jdbc:sqlite:" + DB_PATH;
+    private static final Comparator<Codec> codecComparator = (c1, c2) -> c1.getImportance() == c2.getImportance() ? c1.getCodecName().compareTo(c2.getCodecName()) : c2.getImportance() - c1.getImportance();
+    private static final Comparator<Format> formatComparator = (f1, f2) -> f1.getImportance() == f2.getImportance() ? f1.getFormatName().compareTo(f2.getFormatName()) : f2.getImportance() - f1.getImportance();
     private static Connection conn;
-    private static final Comparator<Codec> codecComparator = (c1, c2) -> {
-        if(c1.getImportance() == c2.getImportance())return c1.getCodecName().compareTo(c2.getCodecName());
-        return c2.getImportance() - c1.getImportance();
-    };
-    private static final Comparator<Format> formatComparator = (f1,f2) -> {
-        if(f1.getImportance() == f2.getImportance())return f1.getFormatName().compareTo(f2.getFormatName());
-        return f2.getImportance() - f1.getImportance();
-    };
 
     /**
      * builds a Connection to the SQLite Database
      *
      * @throws ConnectionFailedException if no Connection could be established
      */
-
     public static void openConnection() throws ConnectionFailedException {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -120,7 +113,7 @@ public class SQLite {
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     private static boolean saveProfile(Profile profile, boolean custom) throws SQLException {
-        if (profileIsSaved(profile.getName())) return false;
+        if (profileExists(profile.getName())) return false;
 
         String sql = "INSERT INTO profiles (Name,AudioCodec,AudioSampleRate,AudioBitRate,VideoCodec," +
                 "VideoFrameRate,VideoWidth,VideoHeight,Format,OutputPath,RemoveSubtitles,RemoveAudio,Custom)" +
@@ -195,8 +188,8 @@ public class SQLite {
     }
 
     private static Format getFormat(String name) throws SQLException, NoSuchFieldException {
-        if(name.equals("copy"))return new Format("copy");
-        if(name.equals("auto"))return new Format("auto");
+        if (name.equals("copy")) return new Format("copy");
+        if (name.equals("auto")) return new Format("auto");
 
         String sql = "SELECT * FROM AvailableFormats WHERE Format=?";
 
@@ -209,8 +202,8 @@ public class SQLite {
     }
 
     private static Codec getCodec(String name) throws SQLException, NoSuchFieldException {
-        if(name.equals("copy"))return new Codec("copy");
-        if(name.equals("auto"))return new Codec("auto");
+        if (name.equals("copy")) return new Codec("copy");
+        if (name.equals("auto")) return new Codec("auto");
 
         String sql = "SELECT * FROM AvailableCodecs WHERE CodecName=?";
 
@@ -296,7 +289,7 @@ public class SQLite {
      * @return true if profile with this name exists in Database
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static boolean profileIsSaved(String name) throws SQLException {
+    public static boolean profileExists(String name) throws SQLException {
         String sql = "SELECT * FROM Profiles WHERE Name=?";
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, name);
@@ -310,26 +303,6 @@ public class SQLite {
         else System.out.println("Didnt add Sample Profile ... maybe it already exists?");
         if (deleteSampleProfile()) System.out.println("deleted Sample Profile");
         else System.out.println("Didnt delete Sample Profile ... something went wrong here!");
-    }
-
-    /**
-     * Looks up all the Profiles in the Database and returns all the Profile names in a SortedSet.
-     *
-     * @return a TreeSet with the Profile names in alphabetical order.
-     * @throws SQLException if a Database error occurs or if the connection is closed
-     */
-    public static SortedSet<String> getProfileNames() throws SQLException {
-
-        SortedSet<String> set = new TreeSet<>();
-        String sql = "SELECT Name FROM Profiles";
-
-        Statement statement = conn.createStatement();
-        ResultSet result = statement.executeQuery(sql);
-
-        while (result.next()) {
-            set.add(result.getString("Name"));
-        }
-        return set;
     }
 
     /**
@@ -349,8 +322,8 @@ public class SQLite {
             Codec codec = extractCodec(result);
             set.add(codec);
         }
-        set.add(new Codec("copy",9));
-        set.add(new Codec("auto",10));
+        set.add(new Codec("copy", 9));
+        set.add(new Codec("auto", 10));
         return set;
     }
 
@@ -370,8 +343,8 @@ public class SQLite {
             Codec codec = extractCodec(result);
             set.add(codec);
         }
-        set.add(new Codec("copy",9));
-        set.add(new Codec("auto",10));
+        set.add(new Codec("copy", 9));
+        set.add(new Codec("auto", 10));
         return set;
     }
 
@@ -393,8 +366,8 @@ public class SQLite {
             format.setMuxing(result.getInt("Muxing") != 0);
             set.add(format);
         }
-        set.add(new Format("copy",9));
-        set.add(new Format("auto",10));
+        set.add(new Format("copy", 9));
+        set.add(new Format("auto", 10));
         return set;
     }
 
@@ -403,7 +376,7 @@ public class SQLite {
      *
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static void deleteCodecs() throws SQLException {
+    private static void deleteCodecs() throws SQLException {
         String sql = "DELETE FROM AvailableCodecs";
 
         Statement statement = conn.createStatement();
@@ -420,7 +393,7 @@ public class SQLite {
      * @param codec
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static void add(String codec) throws SQLException {
+    private static void add(String codec) throws SQLException {
 
         String sql = "INSERT INTO AvailableFormats (Format,Description,Demuxing,Muxing)" +
                 " VALUES ( ?, ?, ?, ?)";

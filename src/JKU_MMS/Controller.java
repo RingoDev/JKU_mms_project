@@ -414,14 +414,12 @@ public class Controller {
      */
     public void profileChanged() {
 
-        //TODO ChoiceBoxes are not changing
         Profile selectedProfile = chooseProfile.getSelectionModel().getSelectedItem();
         System.out.println("Profile was changed to " + selectedProfile.getName());
 
         chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
-        chooseVideoCodec.getSelectionModel().select(selectedProfile.getVideoCodec());
+        chooseVideoCodec.setValue(selectedProfile.getVideoCodec());
         chooseAudioCodec.getSelectionModel().select(selectedProfile.getAudioCodec());
-
         subtitlesButton.setSelected(selectedProfile.removeSubtitles());
         audioButton.setSelected(selectedProfile.removeAudio());
         samplerateText.setText(Integer.toString(selectedProfile.getAudioSampleRate()));
@@ -444,11 +442,11 @@ public class Controller {
         chooseProfile.getSelectionModel().select(0);
 
         // adding saved VideoCodecs to the ChoiceBox
-        chooseVideoCodec.getItems().addAll(audioCodecs);
+        chooseVideoCodec.getItems().addAll(videoCodecs);
         chooseVideoCodec.getSelectionModel().select(0);
 
         // adding saved AudioCodecs to the ChoiceBox
-        chooseAudioCodec.getItems().addAll(videoCodecs);
+        chooseAudioCodec.getItems().addAll(audioCodecs);
         chooseAudioCodec.getSelectionModel().select(0);
 
         // adding available Formats to the ChoiceBox

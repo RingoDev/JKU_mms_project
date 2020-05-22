@@ -1,11 +1,27 @@
 package JKU_MMS.Settings;
 
+import java.util.Objects;
+
 public class Format {
 
     String formatName;
     String description;
     Boolean muxing;
     Boolean demuxing;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Format format = (Format) o;
+        return formatName.equals(format.formatName) &&
+                Objects.equals(description, format.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(formatName, description);
+    }
 
     public Format(String formatName, int importance){
         this.formatName = formatName;

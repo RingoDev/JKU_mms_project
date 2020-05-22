@@ -1,10 +1,25 @@
 package JKU_MMS.Settings;
 
-import java.util.Comparator;
+import java.util.Objects;
 
 public class Codec {
 
     String codecName;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Codec codec = (Codec) o;
+        return codecName.equals(codec.codecName) &&
+                Objects.equals(description, codec.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(codecName, description);
+    }
+
     String description;
     Boolean decoding;
     Boolean encoding;
