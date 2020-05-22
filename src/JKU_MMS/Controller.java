@@ -8,8 +8,6 @@ import JKU_MMS.Model.Task;
 import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
@@ -29,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -39,17 +38,21 @@ public class Controller {
     public static FFprobe ffprobe;
     public static FFmpegExecutor fFmpegExecutor;
     private final Model model;
-    public TextField inputFile;
-    public TextField outputPath;
-    public TextField videoWidth;
-    public TextField videoHeight;
-    public TextField frameRate;
+
     // opens a file chooser and lets the user choose a video file
     public Button inputChooser;
+    public TextField inputFile;
+    // opens a directory chooser and lets the user define the outputFolder
+    public Button outputChooser;
+    public TextField outputPath;
+
     // adds a new tasks to the queue
     public Button addTask;
     // starts processing all tasks enqueued in mode.tasks
     public Button process;
+
+    // Settings
+
     // dropdown menu which lets user select profile for task
     public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
@@ -58,14 +61,20 @@ public class Controller {
     public ChoiceBox<Codec> chooseAudioCodec = new ChoiceBox<>();
     // dropdown menu which lets user select Format for task
     public ChoiceBox<Format> chooseFormat = new ChoiceBox<>();
-    // opens a directory chooser and lets the user define the outputFolder
-    public Button outputChooser;
+
+    // textFields for settings
+    public TextField bitrateText, samplerateText, newProfileName, videoWidth, videoHeight, frameRate;
+    public RadioButton subtitlesButton,audioButton;
+
+    // create profile button
+    public Button createProfile;
+
+    // Tasks
+
     // starts the selected task
     public Button startSelectedTask;
     // removes the selected task
     public Button removeSelectedTask;
-    // create profile button
-    public Button createProfile;
     // for now the user has to manually remove finished tasks
     // as a further improvement the model could maybe automatically remove them?
     public Button removeFinishedTasks;
@@ -76,14 +85,18 @@ public class Controller {
     public TableColumn<Task, String> profileNameCol;
     public TableColumn<Task, String> progressCol;
     // Buttons for removing subtitles and audio
-    public RadioButton subtitlesButton;
-    public RadioButton audioButton;
+
     public String ffmpeg_path;
     public String ffprobe_path;
-    // Holds all the Profiles so we don't have to search the Database every time
+
+    // Data
+
+    // Holds settings data from database
     public Map<String, Profile> profileMap;
-    // textFields for settings
-    public TextField bitrateText, samplerateText, newProfileName;
+    public Set<Codec> videoCodecs;
+    public Set<Codec> audioCodecs;
+    public Set<Format> formats;
+
     private Thread ffmpegTask;
 
     public Controller() throws IOException {
@@ -125,11 +138,7 @@ public class Controller {
         }
         fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
 
-        try {
-            profileMap = SQLite.getAllProfiles();
-        } catch (SQLException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+        grabOptionsFromDB();
     }
 
     private static int integerChanged(String value) {
@@ -149,7 +158,7 @@ public class Controller {
     }
 
     @FXML
-    private void initialize() throws SQLException {
+    private void initialize() {
         outputPath.setText(model.currentSettings.getOutputPath().toString());
 
         outputPath.textProperty().addListener((observable, oldValue, newValue) -> model.currentSettings.setOutputPath(Paths.get(newValue)));
@@ -191,44 +200,12 @@ public class Controller {
             }
         });
 
-        //TODO when Profile is selected, display corresponding Settings as Standard
 
-        chooseProfile.setConverter(new StringConverter<>() {
+        setChoiceBoxConverters();
 
-            @Override
-            public String toString(Profile profile) {
-                if (profile == null) return null;
-                return profile.toString();
-            }
 
-            @Override
-            public Profile fromString(String string) {
-                return profileMap.get(string);
-            }
-        });
-        chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
-        //items.add(new Separator());
-        chooseProfile.getItems().addAll( profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
-        // display the first Value in list as standard select
-        chooseProfile.getSelectionModel().select(0);
-        // adding saved VideoCodecs to the ChoiceBox
-        chooseVideoCodec.getItems().add(new Codec("auto"));
-        chooseVideoCodec.getItems().add(new Codec("copy"));
-        chooseVideoCodec.getItems().addAll(SQLite.getVideoCodecs());
-        // display the first Value in list as standard select
-        chooseVideoCodec.getSelectionModel().select(0);
-        // adding saved AudioCodecs to the ChoiceBox
-        chooseAudioCodec.getItems().add(new Codec("auto"));
-        chooseAudioCodec.getItems().add(new Codec("copy"));
-        chooseAudioCodec.getItems().addAll(SQLite.getAudioCodecs());
-        // display the first Value in list as standard select
-        chooseAudioCodec.getSelectionModel().select(0);
-        // adding available Formats to the ChoiceBox
-        chooseFormat.getItems().add(new Format("auto"));
-        chooseFormat.getItems().add(new Format("copy"));
-        chooseFormat.getItems().addAll(SQLite.getFormats());
-        // display the first Value in list as standard select
-        chooseFormat.getSelectionModel().select(0);
+        fillChoiceBoxes();
+
 
         // add listener to chooseProfile
         ChangeListener<Object> profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
@@ -398,6 +375,11 @@ public class Controller {
 //    	}
     }
 
+    /**
+     * Converts the selected Options into a single new Profile
+     *
+     * @return the Profile with the selected Options
+     */
     public Profile getProfile() {
         String profileName = newProfileName.getText();
         Format format = chooseFormat.getValue();
@@ -426,7 +408,12 @@ public class Controller {
         return p;
     }
 
+    /**
+     * Selects Profile-specific Options in all fields.
+     */
     public void profileChanged() {
+
+        //TODO ChoiceBoxes are not changing
         Profile selectedProfile = chooseProfile.getSelectionModel().getSelectedItem();
         System.out.println("Profile was changed to " + selectedProfile.getName());
 
@@ -442,5 +429,117 @@ public class Controller {
         frameRate.setText(Integer.toString((int) selectedProfile.getVideoFrameRate()));
         //TODO handle double Text Data (framerate)
 
+    }
+
+    /**
+     * Fills the ChoiceBoxes with Profiles, Codecs and Formats
+     */
+    private void fillChoiceBoxes() {
+        chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+        //items.add(new Separator());
+        chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
+        // display the first Value in list as standard select
+        chooseProfile.getSelectionModel().select(0);
+        // adding saved VideoCodecs to the ChoiceBox
+        chooseVideoCodec.getItems().add(new Codec("auto"));
+        chooseVideoCodec.getItems().add(new Codec("copy"));
+        chooseVideoCodec.getItems().addAll(audioCodecs);
+        // display the first Value in list as standard select
+        chooseVideoCodec.getSelectionModel().select(0);
+        // adding saved AudioCodecs to the ChoiceBox
+        chooseAudioCodec.getItems().add(new Codec("auto"));
+        chooseAudioCodec.getItems().add(new Codec("copy"));
+        chooseAudioCodec.getItems().addAll(videoCodecs);
+        // display the first Value in list as standard select
+        chooseAudioCodec.getSelectionModel().select(0);
+        // adding available Formats to the ChoiceBox
+        chooseFormat.getItems().add(new Format("auto"));
+        chooseFormat.getItems().add(new Format("copy"));
+        chooseFormat.getItems().addAll(formats);
+        // display the first Value in list as standard select
+        chooseFormat.getSelectionModel().select(0);
+    }
+
+    /**
+     * Requests Profiles, Codecs and Formats from Database
+     */
+    private void grabOptionsFromDB() {
+
+        try {
+            profileMap = SQLite.getAllProfiles();
+        } catch (SQLException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        try {
+            videoCodecs = SQLite.getVideoCodecs();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            audioCodecs = SQLite.getAudioCodecs();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            formats = SQLite.getFormats();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Sets Converters for ChoiceBoxes so it can accurately translate between String and the corresponding type.
+     */
+    private void setChoiceBoxConverters() {
+        chooseProfile.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Profile profile) {
+                if (profile == null) return null;
+                return profile.toString();
+            }
+
+            @Override
+            public Profile fromString(String string) {
+                return profileMap.get(string);
+            }
+        });
+
+        chooseVideoCodec.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Codec codec) {
+                if (codec == null) return null;
+                return codec.toString();
+            }
+
+            @Override
+            public Codec fromString(String string) {
+                return videoCodecs.stream().filter(c -> c.toString().equals(string)).findFirst().orElseThrow();
+            }
+        });
+
+        chooseAudioCodec.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Codec codec) {
+                if (codec == null) return null;
+                return codec.toString();
+            }
+
+            @Override
+            public Codec fromString(String string) {
+                return audioCodecs.stream().filter(c -> c.toString().equals(string)).findFirst().orElseThrow();
+            }
+        });
+        chooseFormat.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Format format) {
+                if (format == null) return null;
+                return format.toString();
+            }
+
+            @Override
+            public Format fromString(String string) {
+                return formats.stream().filter(c -> c.toString().equals(string)).findFirst().orElseThrow();
+            }
+        });
     }
 }
