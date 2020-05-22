@@ -3,3 +3,5 @@
 .env
 JKU_mms_project.iml
 .idea
+/data/codecs.txt
+/data/formats.txt

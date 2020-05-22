@@ -309,7 +309,7 @@ public class SQLite {
      * Queries the Database for all VideoCodecs and returns the VideoCodecs alphabetically sorted.
      * The DummyCodecs "copy" and "auto" are also included.
      *
-     * @return a TreeSet with the Available VideoCodecs
+     * @return a {@link TreeSet} with the Available VideoCodecs
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Codec> getVideoCodecs() throws SQLException {
@@ -330,7 +330,7 @@ public class SQLite {
     /**
      * Queries the Database for all AudioCodecs and returns the AudioCodecs alphabetically sorted.
      *
-     * @return a TreeSet with the Available AudioCodecs
+     * @return a {@link TreeSet} with the Available AudioCodecs
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Codec> getAudioCodecs() throws SQLException {
@@ -351,7 +351,7 @@ public class SQLite {
     /**
      * Queries the Database for all Formats and returns the Formats alphabetically sorted.
      *
-     * @return a TreeSet with the Available Formats Descriptions
+     * @return a {@link TreeSet} with the Available Formats Descriptions
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Format> getFormats() throws SQLException {
@@ -395,19 +395,28 @@ public class SQLite {
      */
     private static void add(String codec) throws SQLException {
 
-        String sql = "INSERT INTO AvailableFormats (Format,Description,Demuxing,Muxing)" +
-                " VALUES ( ?, ?, ?, ?)";
+        String sql = "INSERT INTO AvailableCodecs (CodecName,Description,Decoding,Encoding," +
+                "CodecType,IntraCodec,LossyCompression,LosslessCompression)" +
+                " VALUES ( ?, ?, ?, ?,?,?,?,?)";
 
-        String flags = codec.substring(1, 3);
-        codec = codec.substring(4);
+
+        String flags = codec.substring(1, 7);
+        System.out.println(flags);
+        codec = codec.substring(8);
         String codecName = codec.replaceAll("(\\s\\s.+?$)", "");
+        System.out.println(codecName);
         String description = codec.replaceAll("(^.*?\\s\\s+)", "");
+        System.out.println(description);
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, codecName);
         statement.setString(2, description);
-        statement.setInt(3, flags.charAt(0) == ' ' ? 0 : 1);
-        statement.setInt(4, flags.charAt(1) == ' ' ? 0 : 1);
+        statement.setInt(3, flags.charAt(0) == '.' ? 0 : 1);
+        statement.setInt(4, flags.charAt(1) == '.' ? 0 : 1);
+        statement.setInt(5, flags.charAt(2) == 'V' ? 0 : flags.charAt(2) == 'A' ? 1 : 2);
+        statement.setInt(6, flags.charAt(3) == '.' ? 0 : 1);
+        statement.setInt(7, flags.charAt(4) == '.' ? 0 : 1);
+        statement.setInt(8, flags.charAt(5) == '.' ? 0 : 1);
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
@@ -424,7 +433,7 @@ public class SQLite {
      */
     public static void readFile() throws IOException, SQLException {
         BufferedReader reader = new BufferedReader(new FileReader(
-                Paths.get("data/formats.txt").toFile()));
+                Paths.get("data/codecs.txt").toFile()));
         String line = reader.readLine();
         while (line != null) {
             add(line);
