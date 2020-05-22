@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
@@ -34,11 +35,10 @@ import java.util.stream.Collectors;
 
 public class Controller {
 
-    private final Model model;
-    private Thread ffmpegTask;
     public static FFmpeg ffmpeg;
     public static FFprobe ffprobe;
     public static FFmpegExecutor fFmpegExecutor;
+    private final Model model;
     public TextField inputFile;
     public TextField outputPath;
     public TextField videoWidth;
@@ -51,7 +51,7 @@ public class Controller {
     // starts processing all tasks enqueued in mode.tasks
     public Button process;
     // dropdown menu which lets user select profile for task
-    public ChoiceBox<Object> chooseProfile = new ChoiceBox<>();
+    public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
     public ChoiceBox<Codec> chooseVideoCodec = new ChoiceBox<>();
     // dropdown menu which lets user select AudioCodec for task
@@ -78,13 +78,13 @@ public class Controller {
     // Buttons for removing subtitles and audio
     public RadioButton subtitlesButton;
     public RadioButton audioButton;
-    
     public String ffmpeg_path;
     public String ffprobe_path;
     // Holds all the Profiles so we don't have to search the Database every time
     public Map<String, Profile> profileMap;
     // textFields for settings
     public TextField bitrateText, samplerateText, newProfileName;
+    private Thread ffmpegTask;
 
     public Controller() throws IOException {
         this.model = new Model();
@@ -125,10 +125,26 @@ public class Controller {
         }
         fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
 
-        try{
+        try {
             profileMap = SQLite.getAllProfiles();
-        } catch (SQLException e) {
+        } catch (SQLException | NoSuchFieldException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static int integerChanged(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    private static double doubleChanged(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception e) {
+            return -1.0;
         }
     }
 
@@ -177,12 +193,22 @@ public class Controller {
 
         //TODO when Profile is selected, display corresponding Settings as Standard
 
-        // adding saved Profiles to the ChoiceBox
-        ObservableList<Object> items = FXCollections.observableArrayList();
-        items.addAll(profileMap.values().stream().filter(Profile::isCustom).map(Profile::getName).collect(Collectors.toList()));
-        items.add(new Separator());
-        items.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).map(Profile::getName).collect(Collectors.toList()));
-        chooseProfile.getItems().addAll(items);
+        chooseProfile.setConverter(new StringConverter<>() {
+
+            @Override
+            public String toString(Profile profile) {
+                if (profile == null) return null;
+                return profile.toString();
+            }
+
+            @Override
+            public Profile fromString(String string) {
+                return profileMap.get(string);
+            }
+        });
+        chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+        //items.add(new Separator());
+        chooseProfile.getItems().addAll( profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
         // adding saved VideoCodecs to the ChoiceBox
@@ -209,7 +235,7 @@ public class Controller {
         chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
         // add listeners to settings
         ChangeListener<Object> settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
-		chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
@@ -220,9 +246,9 @@ public class Controller {
         samplerateText.textProperty().addListener(settingsChangedListener);
 
         // if settings change set them directly in the model
-        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1.getCodecName()));
-        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoCodec(t1.getCodecName()));
-        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1.getFormatName()));
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1));
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoCodec(t1));
+        chooseFormat.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setFormat(t1));
         audioButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveAudio(t1));
         subtitlesButton.selectedProperty().addListener((observableValue, aBoolean, t1) -> model.currentSettings.setRemoveSubtitles(t1));
         frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
@@ -237,16 +263,16 @@ public class Controller {
         profileNameCol.setCellValueFactory(c -> c.getValue().profileName);
         // same with progress column
         progressCol.setCellValueFactory(c -> c.getValue().progress);
-        
+
         startSelectedTask.setOnAction(e -> {
-        	int idx = taskTable.getSelectionModel().getSelectedIndex();
-        	if (idx < 0) {
-        		return;
-        	}
-        	Task task = model.tasks.get(idx);
-        	String progress = task.progress.getValue();
-        	if (progress.equalsIgnoreCase("not started")) {
-				if (ffmpegTask != null) {
+            int idx = taskTable.getSelectionModel().getSelectedIndex();
+            if (idx < 0) {
+                return;
+            }
+            Task task = model.tasks.get(idx);
+            String progress = task.progress.getValue();
+            if (progress.equalsIgnoreCase("not started")) {
+                if (ffmpegTask != null) {
                     if (ffmpegTask.isAlive()) {
                         System.err.println("Cant start another tasks while one is being processed");
                         return;
@@ -264,57 +290,57 @@ public class Controller {
 
                 ffmpegTask = new Thread(task);
                 ffmpegTask.start();
-			} else {
-				throw new RuntimeException("Can only start unstarted tasks");
-			}
+            } else {
+                throw new RuntimeException("Can only start unstarted tasks");
+            }
         });
-        
+
         removeSelectedTask.setOnAction(e -> {
-        	int idx = taskTable.getSelectionModel().getSelectedIndex();
-        	if (idx < 0) {
-        		return;
-        	}
-        	Task t = model.tasks.get(idx);
-        	if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
-        		// TODO: stop a running task
-        		// in case you can not stop a running FFmpeg operation with this wrapper just throw an exception here
-        		System.out.println("Stopping task: " + model.tasks.get(idx).fileName.getValue());
-        	}
-        	System.out.println("Removing task: " + model.tasks.get(idx).fileName.getValue());
-        	model.tasks.remove(idx);
+            int idx = taskTable.getSelectionModel().getSelectedIndex();
+            if (idx < 0) {
+                return;
+            }
+            Task t = model.tasks.get(idx);
+            if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
+                // TODO: stop a running task
+                // in case you can not stop a running FFmpeg operation with this wrapper just throw an exception here
+                System.out.println("Stopping task: " + model.tasks.get(idx).fileName.getValue());
+            }
+            System.out.println("Removing task: " + model.tasks.get(idx).fileName.getValue());
+            model.tasks.remove(idx);
         });
-        
+
         removeFinishedTasks.setOnAction(e -> {
-        	for (int i = 0; i < model.tasks.size(); i++) {
-        		Task t = model.tasks.get(i);
-        		if (t.progress.getValue().equalsIgnoreCase("finished")) {
-        			model.tasks.remove(t);
-        			i--;
-        		}
-        	}
+            for (int i = 0; i < model.tasks.size(); i++) {
+                Task t = model.tasks.get(i);
+                if (t.progress.getValue().equalsIgnoreCase("finished")) {
+                    model.tasks.remove(t);
+                    i--;
+                }
+            }
         });
 
         createProfile.setOnAction(event -> {
-        	String name = newProfileName.getText();
-			if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
-			Profile newProfile = getProfile();
-			// we should allow double Settings for Simplicity
-        	//if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
-        	if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
+            String name = newProfileName.getText();
+            if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
+            Profile newProfile = getProfile();
+            // we should allow double Settings for Simplicity
+            //if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
+            if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
 
-        	profileMap.put(name, newProfile);
+            profileMap.put(name, newProfile);
 
             try {
                 SQLite.addProfile(newProfile);
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-        	chooseProfile.getItems().add(newProfile);
-        	chooseProfile.getSelectionModel().select(newProfile);
-        	chooseProfile.getItems().remove("Custom");
-        	System.out.println("Saved profile as " + name);
+            chooseProfile.getItems().add(0, newProfile);
+            chooseProfile.getSelectionModel().select(newProfile);
+            newProfileName.setText("");
+            chooseProfile.getItems().remove("Custom");
+            System.out.println("Saved profile as " + name);
         });
-
 
 
         // TextFormatter that only permits non-negativ Integers as Values
@@ -340,32 +366,20 @@ public class Controller {
                 new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
     }
 
-    private static int integerChanged(String value) {
-        try {
-            return Integer.parseInt(value);
-        } catch (Exception e) {
-            return -1;
-        }
-    }
-
-    private static double doubleChanged(String value) {
-        try {
-            return Double.parseDouble(value);
-        } catch (Exception e) {
-            return -1.0;
-        }
-    }
-
     public void close() {
         // TODO join ffmpegTask thread with timeout
     }
-    
-    public void settingsChanged() {
-    	System.out.println("Settings were changed");
-    	Profile curProfile = getProfile();
-    	Map<String,Profile> map = profileMap;
 
-    	// what does this part do?
+    public void settingsChanged() {
+        System.out.println("Settings were changed");
+
+        // what does this part do?
+
+
+//    	Profile curProfile = getProfile();
+//    	Map<String,Profile> map = profileMap;
+//
+//
 //    	if (map.containsValue(curProfile)) {
 //    		Profile p = null;
 //    		String name = null;
@@ -382,39 +396,51 @@ public class Controller {
 //    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
 //    		chooseProfile.getSelectionModel().select("Custom");
 //    	}
-	}
-    
-    public Profile getProfile() {
-    	String profileName = newProfileName.getText();
-    	String format = chooseFormat.getValue().getFormatName();
-    	String videoCodec = chooseVideoCodec.getValue().getCodecName();
-    	String audioCodec = chooseAudioCodec.getValue().getCodecName();
-    	boolean removeSubtitles = subtitlesButton.selectedProperty().get();
-    	boolean removeAudio = audioButton.selectedProperty().get();
-    	int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
-    	int width = videoWidth.getText().isEmpty() ? -1 : Integer.parseInt(videoWidth.getText());
-    	int height = videoHeight.getText().isEmpty() ? -1 : Integer.parseInt(videoHeight.getText());
-    	int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
-    	double framerate = frameRate.getText().isEmpty() ? -1 : Double.parseDouble(frameRate.getText());
-
-    	Profile p = new Profile(profileName);
-    	p.setFormat(format);
-    	p.setVideoCodec(videoCodec);
-    	p.setAudioCodec(audioCodec);
-    	p.setRemoveSubtitles(removeSubtitles);
-    	p.setRemoveAudio(removeAudio);
-    	p.setAudioSampleRate(samplerate);
-    	p.setVideoWidth(width);
-    	p.setVideoHeight(height);
-    	p.setAudioBitRate(bitrate);
-    	p.setVideoFrameRate(framerate);
-
-    	return p;
     }
-    
-    public void profileChanged() {
-    	System.out.println("Profile was changed to " + chooseProfile.getValue());
 
-		// TODO fill all ComboBoxes and RadioButtons with the settings of the newly selected profile
-	}
+    public Profile getProfile() {
+        String profileName = newProfileName.getText();
+        Format format = chooseFormat.getValue();
+        Codec videoCodec = chooseVideoCodec.getValue();
+        Codec audioCodec = chooseAudioCodec.getValue();
+        boolean removeSubtitles = subtitlesButton.selectedProperty().get();
+        boolean removeAudio = audioButton.selectedProperty().get();
+        int samplerate = samplerateText.getText().isEmpty() ? -1 : Integer.parseInt(samplerateText.getText());
+        int width = videoWidth.getText().isEmpty() ? -1 : Integer.parseInt(videoWidth.getText());
+        int height = videoHeight.getText().isEmpty() ? -1 : Integer.parseInt(videoHeight.getText());
+        int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
+        double framerate = frameRate.getText().isEmpty() ? -1 : Double.parseDouble(frameRate.getText());
+
+        Profile p = new Profile(profileName);
+        p.setFormat(format);
+        p.setVideoCodec(videoCodec);
+        p.setAudioCodec(audioCodec);
+        p.setRemoveSubtitles(removeSubtitles);
+        p.setRemoveAudio(removeAudio);
+        p.setAudioSampleRate(samplerate);
+        p.setVideoWidth(width);
+        p.setVideoHeight(height);
+        p.setAudioBitRate(bitrate);
+        p.setVideoFrameRate(framerate);
+
+        return p;
+    }
+
+    public void profileChanged() {
+        Profile selectedProfile = chooseProfile.getSelectionModel().getSelectedItem();
+        System.out.println("Profile was changed to " + selectedProfile.getName());
+
+        chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
+        chooseVideoCodec.getSelectionModel().select(selectedProfile.getVideoCodec());
+        chooseAudioCodec.getSelectionModel().select(selectedProfile.getAudioCodec());
+        subtitlesButton.setSelected(selectedProfile.removeSubtitles());
+        audioButton.setSelected(selectedProfile.removeAudio());
+        samplerateText.setText(Integer.toString(selectedProfile.getAudioSampleRate()));
+        videoWidth.setText(Integer.toString(selectedProfile.getVideoWidth()));
+        videoHeight.setText(Integer.toString(selectedProfile.getVideoHeight()));
+        bitrateText.setText(Integer.toString(selectedProfile.getAudioBitRate()));
+        frameRate.setText(Integer.toString((int) selectedProfile.getVideoFrameRate()));
+        //TODO handle double Text Data (framerate)
+
+    }
 }

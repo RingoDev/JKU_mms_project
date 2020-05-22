@@ -71,12 +71,12 @@ public class SQLite {
         profile.setVideoWidth(1280);
         profile.setVideoFrameRate(30);
         profile.setAudioBitRate(196608);
-        profile.setVideoCodec("hevc");
+        profile.setVideoCodec(getVideoCodecs().stream().filter(c -> c.getCodecName().equals("hvec")).findFirst().orElseGet(() -> new Codec("hvec")));
         profile.setRemoveAudio(false);
         profile.setRemoveSubtitles(false);
         profile.setAudioSampleRate(48000);
-        profile.setAudioCodec("mp3");
-        profile.setFormat("mp4");
+        profile.setAudioCodec(getAudioCodecs().stream().filter(c -> c.getCodecName().equals("mp3")).findFirst().orElseGet(() -> new Codec("mp3")));
+        profile.setFormat(getFormats().stream().filter(f -> f.getFormatName().equals("mp4")).findFirst().orElseGet(() -> new Format("mp4")));
 
         return addPremadeProfile(profile);
     }
@@ -120,14 +120,14 @@ public class SQLite {
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, profile.getName());
-        statement.setString(2, profile.getAudioCodec());
+        statement.setString(2, profile.getAudioCodec().getCodecName());
         statement.setInt(3, profile.getAudioSampleRate());
         statement.setInt(4, profile.getAudioBitRate());
-        statement.setString(5, profile.getVideoCodec());
+        statement.setString(5, profile.getVideoCodec().getCodecName());
         statement.setDouble(6, profile.getVideoFrameRate());
         statement.setInt(7, profile.getVideoWidth());
         statement.setInt(8, profile.getVideoHeight());
-        statement.setString(9, profile.getFormat());
+        statement.setString(9, profile.getFormat().getFormatName());
         statement.setString(10, profile.getOutputPath().toString());
         statement.setInt(11, profile.removeSubtitles() ? 1 : 0);
         statement.setInt(12, profile.removeAudio() ? 1 : 0);
@@ -140,6 +140,26 @@ public class SQLite {
         return true;
     }
 
+    private static Codec extractCodec(ResultSet result) throws SQLException {
+        Codec codec = new Codec(result.getString("CodecName"));
+        codec.setDescription(result.getString("Description"));
+        codec.setDecoding(result.getInt("Decoding") != 0);
+        codec.setEncoding(result.getInt("Encoding") != 0);
+        codec.setCodecType(result.getInt("CodecType") == 0 ? Codec.CodecType.VIDEO : Codec.CodecType.AUDIO);
+        codec.setIntraCodec(result.getInt("IntraCodec") != 0);
+        codec.setLossyCompression(result.getInt("LossyCompression") != 0);
+        codec.setLosslessCompression(result.getInt("LosslessCompression") != 0);
+        return codec;
+    }
+
+    private static Format extractFormat(ResultSet result) throws SQLException {
+        Format format = new Format(result.getString(1));
+        format.setDescription(result.getString(2));
+        format.setMuxing(result.getInt(3) != 0);
+        format.setDemuxing(result.getInt(4) != 0);
+        return format;
+    }
+
     /**
      * Turns a single query result into a Profile.
      *
@@ -147,22 +167,51 @@ public class SQLite {
      * @return the created Profile
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    private static Profile extractProfile(ResultSet result) throws SQLException {
+    private static Profile extractProfile(ResultSet result) throws SQLException, NoSuchFieldException {
+
         Profile profile = new Profile(result.getString(1));
 
-        profile.setAudioCodec(result.getString(2));
+        profile.setAudioCodec(getCodec(result.getString(2)));
         profile.setAudioSampleRate(result.getInt(3));
         profile.setAudioBitRate(result.getInt(4));
-        profile.setVideoCodec(result.getString(5));
+        profile.setVideoCodec(getCodec(result.getString(5)));
         profile.setVideoFrameRate(result.getDouble(6));
         profile.setVideoWidth(result.getInt(7));
         profile.setVideoHeight(result.getInt(8));
-        profile.setFormat(result.getString(9));
+        profile.setFormat(getFormat(result.getString(9)));
         profile.setOutputPath(Path.of(result.getString(10)));
         profile.setRemoveSubtitles(result.getInt(11) == 1);
         profile.setRemoveAudio(result.getInt(12) == 1);
         profile.setCustom(result.getInt(13) == 1);
         return profile;
+    }
+
+    private static Format getFormat(String name) throws SQLException, NoSuchFieldException {
+        if(name.equals("copy"))return new Format("copy");
+        if(name.equals("auto"))return new Format("auto");
+
+        String sql = "SELECT * FROM AvailableFormats WHERE Format=?";
+
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, name);
+        ResultSet result = statement.executeQuery();
+        if (result.next()) return extractFormat(result);
+        else throw new NoSuchFieldException("There is no Format with the name: " + name);
+
+    }
+
+    private static Codec getCodec(String name) throws SQLException, NoSuchFieldException {
+        if(name.equals("copy"))return new Codec("copy");
+        if(name.equals("auto"))return new Codec("auto");
+
+        String sql = "SELECT * FROM AvailableCodecs WHERE CodecName=?";
+
+        PreparedStatement statement = conn.prepareStatement(sql);
+        statement.setString(1, name);
+        ResultSet result = statement.executeQuery();
+        if (result.next()) return extractCodec(result);
+        else throw new NoSuchFieldException("There is no Codec with the name: " + name);
+
     }
 
     /**
@@ -171,7 +220,7 @@ public class SQLite {
      * @return a Hashmap containing all Profiles in the Database sorted into custom and premade and then sorted by name
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
-    public static Map<String, Profile> getAllProfiles() throws SQLException {
+    public static Map<String, Profile> getAllProfiles() throws SQLException, NoSuchFieldException {
         //sorts by Type(custom/premade) and then by Name
         //TODO test comparator
         Map<String, Profile> map = new HashMap<>();
@@ -199,13 +248,12 @@ public class SQLite {
      * @throws NoSuchFieldException if the Profile doesn't exist
      */
     public static Profile getProfile(String name) throws SQLException, NoSuchFieldException {
-        //TODO testing
 
         String sql = "SELECT * FROM Profiles WHERE Name=?";
 
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, name);
-        ResultSet result = statement.executeQuery(sql);
+        ResultSet result = statement.executeQuery();
         if (result.next()) return extractProfile(result);
         else throw new NoSuchFieldException("There is no Profile with the name: " + name);
 
@@ -289,7 +337,7 @@ public class SQLite {
         ResultSet result = statement.executeQuery(sql);
         while (result.next()) {
 
-            Codec codec = convert(result);
+            Codec codec = extractCodec(result);
             set.add(codec);
         }
         return set;
@@ -308,7 +356,7 @@ public class SQLite {
         ResultSet result = statement.executeQuery(sql);
         while (result.next()) {
 
-            Codec codec = convert(result);
+            Codec codec = extractCodec(result);
             set.add(codec);
         }
         return set;
@@ -352,7 +400,7 @@ public class SQLite {
     }
 
     /**
-     * was used to inser codec into Database from String
+     * was used to insert codec into Database from String
      *
      * @param codec
      * @throws SQLException if a Database error occurs or if the connection is closed
@@ -370,8 +418,8 @@ public class SQLite {
         PreparedStatement statement = conn.prepareStatement(sql);
         statement.setString(1, codecName);
         statement.setString(2, description);
-        statement.setInt(3, codec.charAt(1) == ' ' ? 0 : 1);
-        statement.setInt(4, codec.charAt(2) == ' ' ? 0 : 1);
+        statement.setInt(3, flags.charAt(0) == ' ' ? 0 : 1);
+        statement.setInt(4, flags.charAt(1) == ' ' ? 0 : 1);
 
         int rowsInserted = statement.executeUpdate();
         if (rowsInserted > 0) {
@@ -397,15 +445,6 @@ public class SQLite {
         reader.close();
     }
 
-    public static Codec convert(ResultSet result) throws SQLException {
-        Codec codec = new Codec(result.getString("CodecName"));
-        codec.setDescription(result.getString("Description"));
-        codec.setDecoding(result.getInt("Decoding") != 0);
-        codec.setEncoding(result.getInt("Encoding") != 0);
-        codec.setCodecType(result.getInt("CodecType") == 0 ? Codec.CodecType.VIDEO : Codec.CodecType.AUDIO);
-        codec.setIntraCodec(result.getInt("IntraCodec") != 0);
-        codec.setLossyCompression(result.getInt("LossyCompression") != 0);
-        codec.setLosslessCompression(result.getInt("LosslessCompression") != 0);
-        return codec;
-    }
+    //TODO reset Formats in DB because there was a reading mistake
+
 }

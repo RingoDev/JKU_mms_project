@@ -93,8 +93,8 @@ public class Task implements Runnable {
         if (profile.getVideoCodec().equals("copy")) {
             b.setVideoCodec("copy");
         } else if (!profile.getVideoCodec().equals("auto")) {
-            b.setVideoCodec(profile.getVideoCodec().split(" - ")[0]);
-            System.out.println("video codec set to: " + profile.getVideoCodec().split(" - ")[0]);
+            b.setVideoCodec(profile.getVideoCodec().getCodecName());
+            System.out.println("video codec set to: " + profile.getVideoCodec().getCodecName());
         }
 
         if (profile.getAudioCodec().equals("copy")) {

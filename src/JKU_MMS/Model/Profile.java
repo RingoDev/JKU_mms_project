@@ -1,5 +1,8 @@
 package JKU_MMS.Model;
 
+import JKU_MMS.Settings.Codec;
+import JKU_MMS.Settings.Format;
+
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -10,15 +13,15 @@ public class Profile {
     private boolean removeAudio = false;
 
     // AUDIO SETTING
-    private String audioCodec = "auto";
+    private Codec audioCodec = new Codec("auto");
     private int audioSampleRate = -1;
     private int audioBitRate = -1;
     // VIDEO SETTINGS
-    private String VideoCodec = "auto";
+    private Codec VideoCodec = new Codec("auto");
     private double VideoFrameRate = -1;
     private int videoWidth = -1;
     private int videoHeight = -1;
-    private String format = "auto";  // "mp4, mkv...."
+    private Format format = new Format("auto");  // "mp4, mkv...."
     // all encoded videos with this profile will be saved in this directory
     private Path outputPath = Path.of("./");
     private boolean custom = true;
@@ -73,11 +76,11 @@ public class Profile {
         this.removeAudio = removeAudio;
     }
 
-    public String getAudioCodec() {
+    public Codec getAudioCodec() {
         return audioCodec;
     }
 
-    public void setAudioCodec(String audioCodec) {
+    public void setAudioCodec(Codec audioCodec) {
         this.audioCodec = audioCodec;
     }
 
@@ -97,11 +100,11 @@ public class Profile {
         this.audioBitRate = audioBitRate;
     }
 
-    public String getVideoCodec() {
+    public Codec getVideoCodec() {
         return VideoCodec;
     }
 
-    public void setVideoCodec(String setVideoCodec) {
+    public void setVideoCodec(Codec setVideoCodec) {
         this.VideoCodec = setVideoCodec;
     }
 
@@ -129,11 +132,11 @@ public class Profile {
         this.videoHeight = videoHeight;
     }
 
-    public String getFormat() {
+    public Format getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(Format format) {
         this.format = format;
     }
 
