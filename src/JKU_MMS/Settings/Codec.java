@@ -1,5 +1,7 @@
 package JKU_MMS.Settings;
 
+import java.util.Comparator;
+
 public class Codec {
 
     String codecName;
@@ -10,9 +12,23 @@ public class Codec {
     Boolean intraCodec;
     Boolean lossyCompression;
     Boolean losslessCompression;
+    int importance;
 
-    public Codec(String CodecName) {
-        this.codecName = CodecName;
+    public Codec(String codecName) {
+        this.codecName = codecName;
+    }
+
+    public Codec(String codecName, int importance){
+        this.codecName = codecName;
+        this.importance = importance;
+    }
+
+    public int getImportance() {
+        return importance;
+    }
+
+    public void setImportance(int importance) {
+        this.importance = importance;
     }
 
     public String getCodecName() {
@@ -80,10 +96,10 @@ public class Codec {
     }
 
     public String toString() {
-        if(description == null)return codecName;
+        if (description == null) return codecName;
         StringBuilder sb = new StringBuilder();
         sb.append(this.codecName).append(" - ").append(description);
-        if (sb.length() > 40) sb.delete(40, sb.length()-1).append("...");
+        if (sb.length() > 40) sb.delete(40, sb.length() - 1).append("...");
         return sb.toString();
     }
 

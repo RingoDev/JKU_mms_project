@@ -39,6 +39,8 @@ public class Controller {
     public static FFmpegExecutor fFmpegExecutor;
     private final Model model;
 
+    // General Options
+
     // opens a file chooser and lets the user choose a video file
     public Button inputChooser;
     public TextField inputFile;
@@ -46,12 +48,7 @@ public class Controller {
     public Button outputChooser;
     public TextField outputPath;
 
-    // adds a new tasks to the queue
-    public Button addTask;
-    // starts processing all tasks enqueued in mode.tasks
-    public Button process;
-
-    // Settings
+    // Conversion Options
 
     // dropdown menu which lets user select profile for task
     public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
@@ -62,7 +59,7 @@ public class Controller {
     // dropdown menu which lets user select Format for task
     public ChoiceBox<Format> chooseFormat = new ChoiceBox<>();
 
-    // textFields for settings
+    // Fields for settings
     public TextField bitrateText, samplerateText, newProfileName, videoWidth, videoHeight, frameRate;
     public RadioButton subtitlesButton,audioButton;
 
@@ -71,6 +68,10 @@ public class Controller {
 
     // Tasks
 
+    // adds a new tasks to the queue
+    public Button addTask;
+    // starts processing all tasks enqueued in mode.tasks
+    public Button process;
     // starts the selected task
     public Button startSelectedTask;
     // removes the selected task
@@ -420,6 +421,7 @@ public class Controller {
         chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
         chooseVideoCodec.getSelectionModel().select(selectedProfile.getVideoCodec());
         chooseAudioCodec.getSelectionModel().select(selectedProfile.getAudioCodec());
+
         subtitlesButton.setSelected(selectedProfile.removeSubtitles());
         audioButton.setSelected(selectedProfile.removeAudio());
         samplerateText.setText(Integer.toString(selectedProfile.getAudioSampleRate()));
@@ -440,23 +442,17 @@ public class Controller {
         chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
         // display the first Value in list as standard select
         chooseProfile.getSelectionModel().select(0);
+
         // adding saved VideoCodecs to the ChoiceBox
-        chooseVideoCodec.getItems().add(new Codec("auto"));
-        chooseVideoCodec.getItems().add(new Codec("copy"));
         chooseVideoCodec.getItems().addAll(audioCodecs);
-        // display the first Value in list as standard select
         chooseVideoCodec.getSelectionModel().select(0);
+
         // adding saved AudioCodecs to the ChoiceBox
-        chooseAudioCodec.getItems().add(new Codec("auto"));
-        chooseAudioCodec.getItems().add(new Codec("copy"));
         chooseAudioCodec.getItems().addAll(videoCodecs);
-        // display the first Value in list as standard select
         chooseAudioCodec.getSelectionModel().select(0);
+
         // adding available Formats to the ChoiceBox
-        chooseFormat.getItems().add(new Format("auto"));
-        chooseFormat.getItems().add(new Format("copy"));
         chooseFormat.getItems().addAll(formats);
-        // display the first Value in list as standard select
         chooseFormat.getSelectionModel().select(0);
     }
 

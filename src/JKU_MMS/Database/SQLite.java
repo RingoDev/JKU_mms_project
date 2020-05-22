@@ -18,6 +18,14 @@ public class SQLite {
     private final static String DB_PATH = "./data/data.db";
     private final static String DB_URL = "jdbc:sqlite:" + DB_PATH;
     private static Connection conn;
+    private static final Comparator<Codec> codecComparator = (c1, c2) -> {
+        if(c1.getImportance() == c2.getImportance())return c1.getCodecName().compareTo(c2.getCodecName());
+        return c2.getImportance() - c1.getImportance();
+    };
+    private static final Comparator<Format> formatComparator = (f1,f2) -> {
+        if(f1.getImportance() == f2.getImportance())return f1.getFormatName().compareTo(f2.getFormatName());
+        return f2.getImportance() - f1.getImportance();
+    };
 
     /**
      * builds a Connection to the SQLite Database
@@ -326,12 +334,13 @@ public class SQLite {
 
     /**
      * Queries the Database for all VideoCodecs and returns the VideoCodecs alphabetically sorted.
+     * The DummyCodecs "copy" and "auto" are also included.
      *
      * @return a TreeSet with the Available VideoCodecs
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Codec> getVideoCodecs() throws SQLException {
-        SortedSet<Codec> set = new TreeSet<>(Comparator.comparing(Codec::getCodecName));
+        SortedSet<Codec> set = new TreeSet<>(codecComparator);
         String sql = "SELECT * FROM AvailableCodecs WHERE CodecType=0";
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery(sql);
@@ -340,6 +349,8 @@ public class SQLite {
             Codec codec = extractCodec(result);
             set.add(codec);
         }
+        set.add(new Codec("copy",9));
+        set.add(new Codec("auto",10));
         return set;
     }
 
@@ -350,7 +361,7 @@ public class SQLite {
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Codec> getAudioCodecs() throws SQLException {
-        SortedSet<Codec> set = new TreeSet<>(Comparator.comparing(Codec::getCodecName));
+        SortedSet<Codec> set = new TreeSet<>(codecComparator);
         String sql = "SELECT * FROM AvailableCodecs WHERE CodecType=1";
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery(sql);
@@ -359,6 +370,8 @@ public class SQLite {
             Codec codec = extractCodec(result);
             set.add(codec);
         }
+        set.add(new Codec("copy",9));
+        set.add(new Codec("auto",10));
         return set;
     }
 
@@ -369,7 +382,7 @@ public class SQLite {
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static SortedSet<Format> getFormats() throws SQLException {
-        SortedSet<Format> set = new TreeSet<>(Comparator.comparing(Format::getFormatName));
+        SortedSet<Format> set = new TreeSet<>(formatComparator);
         String sql = "SELECT * FROM AvailableFormats";
         Statement statement = conn.createStatement();
         ResultSet result = statement.executeQuery(sql);
@@ -380,6 +393,8 @@ public class SQLite {
             format.setMuxing(result.getInt("Muxing") != 0);
             set.add(format);
         }
+        set.add(new Format("copy",9));
+        set.add(new Format("auto",10));
         return set;
     }
 

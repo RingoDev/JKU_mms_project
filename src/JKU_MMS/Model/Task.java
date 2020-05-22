@@ -90,14 +90,14 @@ public class Task implements Runnable {
     private static void applyProfile(Task task, Profile profile) {
         FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
 
-        if (profile.getVideoCodec().equals("copy")) {
+        if (profile.getVideoCodec().getCodecName().equals("copy")) {
             b.setVideoCodec("copy");
-        } else if (!profile.getVideoCodec().equals("auto")) {
+        } else if (!profile.getVideoCodec().getCodecName().equals("auto")) {
             b.setVideoCodec(profile.getVideoCodec().getCodecName());
             System.out.println("video codec set to: " + profile.getVideoCodec().getCodecName());
         }
 
-        if (profile.getAudioCodec().equals("copy")) {
+        if (profile.getAudioCodec().getCodecName().equals("copy")) {
             b.setAudioCodec("copy");
         } else {
             System.out.println(profile.getAudioCodec());
@@ -127,7 +127,7 @@ public class Task implements Runnable {
         job = executor.createJob(builder, new ProgressListener() {
             @Override
             public void progress(Progress arg0) {
-                progress.setValue(Integer.toString((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration)) + "%");
+                progress.setValue((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration) + "%");
             }
         });
     }

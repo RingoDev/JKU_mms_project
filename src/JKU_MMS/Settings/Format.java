@@ -7,6 +7,21 @@ public class Format {
     Boolean muxing;
     Boolean demuxing;
 
+    public Format(String formatName, int importance){
+        this.formatName = formatName;
+        this.importance = importance;
+    }
+
+    public int getImportance() {
+        return importance;
+    }
+
+    public void setImportance(int importance) {
+        this.importance = importance;
+    }
+
+    int importance;
+
     public Format(String formatName) {
         this.formatName = formatName;
     }
