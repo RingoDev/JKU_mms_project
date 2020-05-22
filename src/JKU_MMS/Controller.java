@@ -51,7 +51,7 @@ public class Controller {
     // Conversion Options
 
     // dropdown menu which lets user select profile for task
-    public ChoiceBox<Profile> chooseProfile = new ChoiceBox<>();
+    public ChoiceBox<Object> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
     public ChoiceBox<Codec> chooseVideoCodec = new ChoiceBox<>();
     // dropdown menu which lets user select AudioCodec for task
@@ -99,10 +99,16 @@ public class Controller {
     public Set<Format> formats;
 
     private Thread ffmpegTask;
+    
+    // Listeners
+    private ChangeListener<Object> profileChangedListener;
+    private ChangeListener<Object> settingsChangedListener;
 
     public Controller() throws IOException {
         this.model = new Model();
-
+        profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
+        settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();        
+        
         if (SystemUtils.IS_OS_LINUX) {
             // TODO: set with whereis command
             //ProcessBuilder ffmpegWh = new ProcessBuilder("whereis", "ffmpeg");
@@ -179,7 +185,7 @@ public class Controller {
             String filePath = inputFile.getText();
 
             try {
-                this.model.tasks.add(Task.of(filePath, model.currentSettings, true));
+                this.model.tasks.add(Task.of(filePath, (Profile) chooseProfile.getSelectionModel().getSelectedItem(), true));
             } catch (IOException e) {
                 //TODO create PopUp Window with ErrorMessage
                 e.printStackTrace();
@@ -206,22 +212,6 @@ public class Controller {
 
 
         fillChoiceBoxes();
-
-
-        // add listener to chooseProfile
-        ChangeListener<Object> profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
-        chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
-        // add listeners to settings
-        ChangeListener<Object> settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
-        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
-        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
-        audioButton.selectedProperty().addListener(settingsChangedListener);
-        subtitlesButton.selectedProperty().addListener(settingsChangedListener);
-        bitrateText.textProperty().addListener(settingsChangedListener);
-        videoWidth.textProperty().addListener(settingsChangedListener);
-        videoHeight.textProperty().addListener(settingsChangedListener);
-        frameRate.textProperty().addListener(settingsChangedListener);
-        samplerateText.textProperty().addListener(settingsChangedListener);
 
         // if settings change set them directly in the model
         chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioCodec(t1));
@@ -313,11 +303,17 @@ public class Controller {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            chooseProfile.getItems().add(0, newProfile);
-            chooseProfile.getSelectionModel().select(newProfile);
             newProfileName.setText("");
-            chooseProfile.getItems().remove("Custom");
-            System.out.println("Saved profile as " + name);
+            // temporarily remove the listener because we don't want profileChanged() to be called here
+            chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
+            // add the new profile and select it
+        	chooseProfile.getItems().add(0, newProfile);
+        	chooseProfile.getSelectionModel().select(newProfile);
+        	// remove the custom profile
+        	chooseProfile.getItems().remove(model.currentSettings);
+        	// re-add the listener
+            chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
+        	System.out.println("Saved profile as " + name);
         });
 
 
@@ -342,38 +338,34 @@ public class Controller {
                 new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
         frameRate.setTextFormatter(
                 new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+        
+        chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
+        // display the first Value in list as standard select
+        // this fires the profileChanged listener which fills up the settings and adds the settingsChanged listener to each component afterwards
+        Object item = chooseProfile.getItems().get(0) instanceof Separator ? chooseProfile.getItems().get(1) : chooseProfile.getItems().get(0);
+        chooseProfile.getSelectionModel().select(item);
     }
 
     public void close() {
         // TODO join ffmpegTask thread with timeout
     }
 
+    /**
+     * Adds the custom profile option to the chooseProfile ChoiceBox if necessary.
+     * Is called when the user changes settings.
+     */
     public void settingsChanged() {
-        System.out.println("Settings were changed");
-
-        // what does this part do?
-
-
-//    	Profile curProfile = getProfile();
-//    	Map<String,Profile> map = profileMap;
-//
-//
-//    	if (map.containsValue(curProfile)) {
-//    		Profile p = null;
-//    		String name = null;
-//    		for (Map.Entry<String, Profile> e : map.entrySet()) {
-//    			if (e.getValue().equals(curProfile)) {
-//    				p = e.getValue();
-//    				name = e.getKey();
-//    				break;
-//    			}
-//    		}
-//    		chooseProfile.getItems().remove("Custom");
-//    		chooseProfile.getSelectionModel().select(name);
-//    	} else {
-//    		if (!chooseProfile.getItems().contains("Custom")) chooseProfile.getItems().add("Custom");
-//    		chooseProfile.getSelectionModel().select("Custom");
-//    	}
+    	System.out.println("Settings were changed");
+    	if (!chooseProfile.getItems().contains(model.currentSettings)) {
+    		System.out.println("Adding custom profile to the ChoiceBox");
+    		chooseProfile.getItems().add(model.currentSettings);
+    		// temporarily remove the listener so profileChanged() doesn't get called
+    		// this is because it should only get called when the user changes the profile or on startup, but not when we change it to the custom option
+    		chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
+    		chooseProfile.getSelectionModel().select(model.currentSettings);
+    		// re-add the listener
+    		chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
+    	}
     }
 
     /**
@@ -411,11 +403,16 @@ public class Controller {
 
     /**
      * Selects Profile-specific Options in all fields.
+     * Is called every time the user chooses a new profile from the chooseProfile ChoiceBox AND on startup.
      */
     public void profileChanged() {
-
-        Profile selectedProfile = chooseProfile.getSelectionModel().getSelectedItem();
+        Profile selectedProfile = (Profile) chooseProfile.getSelectionModel().getSelectedItem();
         System.out.println("Profile was changed to " + selectedProfile.getName());
+        // temporarily remove the settingsChangedListeners
+        // this is because settingsChanged() should only fire when the user changes the settings, but not when we do it
+    	removeSettingsChangedListener();
+        // remove current_settings from the ChoiceBox if necessary
+    	chooseProfile.getItems().remove(model.currentSettings);
 
         chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
         chooseVideoCodec.setValue(selectedProfile.getVideoCodec());
@@ -428,19 +425,19 @@ public class Controller {
         bitrateText.setText(Integer.toString(selectedProfile.getAudioBitRate()));
         frameRate.setText(Integer.toString((int) selectedProfile.getVideoFrameRate()));
         //TODO handle double Text Data (framerate)
-
+        
+        // re-add listeners
+        addSettingsChangedListener();
     }
 
     /**
      * Fills the ChoiceBoxes with Profiles, Codecs and Formats
      */
     private void fillChoiceBoxes() {
-        chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
-        //items.add(new Separator());
+    	chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+        chooseProfile.getItems().add(new Separator());
         chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
-        // display the first Value in list as standard select
-        chooseProfile.getSelectionModel().select(0);
-
+        
         // adding saved VideoCodecs to the ChoiceBox
         chooseVideoCodec.getItems().addAll(videoCodecs);
         chooseVideoCodec.getSelectionModel().select(0);
@@ -487,7 +484,7 @@ public class Controller {
     private void setChoiceBoxConverters() {
         chooseProfile.setConverter(new StringConverter<>() {
             @Override
-            public String toString(Profile profile) {
+            public String toString(Object profile) {
                 if (profile == null) return null;
                 return profile.toString();
             }
@@ -535,5 +532,31 @@ public class Controller {
                 return formats.stream().filter(c -> c.toString().equals(string)).findFirst().orElseThrow();
             }
         });
+    }
+    
+	private void addSettingsChangedListener() {
+		chooseFormat.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+		chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        audioButton.selectedProperty().addListener(settingsChangedListener);
+        subtitlesButton.selectedProperty().addListener(settingsChangedListener);
+        bitrateText.textProperty().addListener(settingsChangedListener);
+        videoWidth.textProperty().addListener(settingsChangedListener);
+        videoHeight.textProperty().addListener(settingsChangedListener);
+        frameRate.textProperty().addListener(settingsChangedListener);
+        samplerateText.textProperty().addListener(settingsChangedListener);
+	}
+    
+    private void removeSettingsChangedListener() {
+    	chooseFormat.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
+    	chooseAudioCodec.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
+        chooseVideoCodec.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
+        audioButton.selectedProperty().removeListener(settingsChangedListener);
+        subtitlesButton.selectedProperty().removeListener(settingsChangedListener);
+        bitrateText.textProperty().removeListener(settingsChangedListener);
+        videoWidth.textProperty().removeListener(settingsChangedListener);
+        videoHeight.textProperty().removeListener(settingsChangedListener);
+        frameRate.textProperty().removeListener(settingsChangedListener);
+        samplerateText.textProperty().removeListener(settingsChangedListener);
     }
 }
