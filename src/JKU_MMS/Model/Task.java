@@ -39,7 +39,7 @@ public class Task implements Runnable {
     }
 
     /**
-     * Creates a taks from an file and profile
+     * Creates a task from an file and profile
      *
      * @param input   File path of a video
      * @param profile Profile with settings that will be applied to the video
@@ -51,7 +51,7 @@ public class Task implements Runnable {
     }
 
     /**
-     * Creates a taks from an file and profile
+     * Creates a task from an file and profile
      *
      * @param filePath   File path of a video
      * @param profile    Profile with settings that will be applied to the video
@@ -92,28 +92,60 @@ public class Task implements Runnable {
 
         if (profile.getVideoCodec().getCodecName().equals("copy")) {
             b.setVideoCodec("copy");
-        } else if (!profile.getVideoCodec().getCodecName().equals("auto")) {
+        } else if (! profile.getVideoCodec().getCodecName().equals("auto")) {
             b.setVideoCodec(profile.getVideoCodec().getCodecName());
             System.out.println("video codec set to: " + profile.getVideoCodec().getCodecName());
         }
 
         if (profile.getAudioCodec().getCodecName().equals("copy")) {
             b.setAudioCodec("copy");
-        } else {
-            System.out.println(profile.getAudioCodec());
+        } else if (! profile.getAudioCodec().getCodecName().equals("auto")) {
+            b.setAudioCodec(profile.getAudioCodec().getCodecName());
+            System.out.println("audio codec set to: " + profile.getAudioCodec().getCodecName());
         }
+
+        if (profile.getVideoFrameRate() != -1) {
+            b.setVideoFrameRate(profile.getVideoFrameRate());
+            System.out.println("Set video framerate to: " + profile.getVideoFrameRate());
+        }
+
+        if (profile.getVideoHeight() != -1) {
+            b.setVideoHeight(profile.getVideoHeight());
+            System.out.println("Set video height to: " + profile.getVideoHeight());
+        }
+
+        if (profile.getVideoWidth() != -1) {
+            b.setVideoWidth(profile.getVideoWidth());
+            System.out.println("Set video width to: " + profile.getVideoWidth());
+        }
+
+        if (profile.getAudioBitRate() != -1) {
+            b.setAudioBitRate(profile.getAudioBitRate());
+            System.out.println("Set audio bit rate to: " + profile.getAudioBitRate());
+        }
+
+        if (profile.getAudioSampleRate() != -1) {
+            b.setAudioSampleRate(profile.getAudioSampleRate());
+            System.out.println("Set audio sample rate to: " + profile.getAudioSampleRate());
+        }
+
+        System.out.println("video format " + profile.getFormat().getFormatName());
 
         if (profile.removeAudio()) {
             b.disableAudio();
+            System.out.println("disabled audio");
         }
 
         if (profile.removeSubtitles()) {
             b.disableSubtitle();
+            System.out.println("disabled subtitles");
         }
 
-        System.out.println(profile.getVideoHeight());
-        System.out.println(profile.getVideoWidth());
-        System.out.println(profile.getVideoFrameRate());
+        // TODO: apply format (hint: look at formats for example -> matroska should be .mkv)
+
+        // TODO: display some warnings to the user for example:
+        // TODO: if video codec is set to copy but framerate is not -1 (e.g. the video has be re-encoded
+        //       for the framerate to be changed (same situation if video height/ width is changed etc.))
 
         task.builder.addOutput(b);
     }

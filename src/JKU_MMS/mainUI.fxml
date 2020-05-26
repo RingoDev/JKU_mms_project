@@ -152,7 +152,7 @@
                            <children>
                          <Label>Remove Subtitles?</Label>
                          <RadioButton fx:id="subtitlesButton" mnemonicParsing="false" prefWidth="125.0" GridPane.columnIndex="1" />
-                         <Label GridPane.rowIndex="2">Video Codex</Label>
+                         <Label GridPane.rowIndex="2">Video Codec</Label>
                          <ChoiceBox fx:id="chooseVideoCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                          <TextField fx:id="videoWidth" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                          <Label GridPane.rowIndex="5">Width</Label>
@@ -197,7 +197,7 @@
                            <children>
                               <Label text="Remove Audio?" />
                               <RadioButton fx:id="audioButton" mnemonicParsing="false" GridPane.columnIndex="1" />
-                              <Label text="Audio Codex" GridPane.rowIndex="1" />
+                              <Label text="Audio Codec" GridPane.rowIndex="1" />
                               <ChoiceBox fx:id="chooseAudioCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <Label text="Samplerate" GridPane.rowIndex="3" />
                               <TextField fx:id="samplerateText" GridPane.columnIndex="1" GridPane.rowIndex="3" />

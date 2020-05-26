@@ -327,17 +327,17 @@ public class Controller {
         };
 
         videoHeight.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         videoWidth.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         samplerateText.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         videoWidth.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         bitrateText.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         frameRate.setTextFormatter(
-                new TextFormatter<>(new IntegerStringConverter(), 0, integerFilter));
+                new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         
         chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
         // display the first Value in list as standard select
