@@ -34,10 +34,11 @@
          			<Label prefWidth="100.0" text="Input file:" BorderPane.Alignment="CENTER_LEFT" />
          		</left>
          		<center>
-         			<TextField fx:id="inputFile" prefWidth="500.0" promptText="test.mp4">test.mp4</TextField>
+         			<TextField fx:id="inputFile" prefWidth="500.0" promptText="test.mp4">test.mp4
          			<BorderPane.margin>
                         <Insets left="10.0" right="10.0" />
                     </BorderPane.margin>
+                    </TextField>
          		</center>
          		<right>
          			<Button fx:id="inputChooser" prefWidth="150.0">Browse</Button>
@@ -48,10 +49,11 @@
          			<Label prefWidth="100.0" text="Output path:" BorderPane.Alignment="CENTER_LEFT" />
          		</left>
          		<center>
-         			<TextField fx:id="outputPath" prefWidth="500.0" />
+         			<TextField fx:id="outputPath" prefWidth="500.0" >
          			<BorderPane.margin>
                         <Insets left="10.0" right="10.0" />
                     </BorderPane.margin>
+                </TextField>
          		</center>
          		<right>
          			<Button fx:id="outputChooser" prefWidth="150.0">Browse</Button>
