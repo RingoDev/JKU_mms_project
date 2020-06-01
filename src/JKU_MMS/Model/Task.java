@@ -92,7 +92,7 @@ public class Task implements Runnable {
      * @param profile
      */
     private static void applyProfile(Task task, Profile profile) {
-        FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
+        FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toAbsolutePath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
 
         if (profile.getVideoCodec().getCodecName().equals("copy")) {
             b.setVideoCodec("copy");
@@ -204,11 +204,15 @@ public class Task implements Runnable {
             e.printStackTrace();
             progress.setValue("Error");
             error = e;
-            listener.taskComplete(this, e);
+            if (listener != null) {
+                listener.taskComplete(this, e);
+            }
             return;
         }
         progress.setValue("Finished");
-        listener.taskComplete(this, null);
+        if (listener != null) {
+            listener.taskComplete(this, null);
+        }
     }
 
     /**
