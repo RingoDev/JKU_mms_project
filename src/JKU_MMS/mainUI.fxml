@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.ComboBox?>
 <VBox spacing="10.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JKU_MMS.Controller">
    <children>
       <VBox spacing="5.0">
@@ -155,7 +156,7 @@
                          <Label>Remove Subtitles?</Label>
                          <RadioButton fx:id="subtitlesButton" mnemonicParsing="false" prefWidth="125.0" GridPane.columnIndex="1" />
                          <Label GridPane.rowIndex="2">Video Codec</Label>
-                         <ChoiceBox fx:id="chooseVideoCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                         <ComboBox fx:id="chooseVideoCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                          <TextField fx:id="videoWidth" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                          <Label GridPane.rowIndex="5">Width</Label>
                          <Label GridPane.rowIndex="4">Height</Label>
@@ -163,7 +164,7 @@
                          <Label GridPane.rowIndex="3">Framerate</Label>
                          <TextField fx:id="frameRate" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <Label text="Format " GridPane.rowIndex="1" />
-                              <ChoiceBox fx:id="chooseFormat" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="chooseFormat" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </center>
@@ -200,7 +201,7 @@
                               <Label text="Remove Audio?" />
                               <RadioButton fx:id="audioButton" mnemonicParsing="false" GridPane.columnIndex="1" />
                               <Label text="Audio Codec" GridPane.rowIndex="1" />
-                              <ChoiceBox fx:id="chooseAudioCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <ComboBox fx:id="chooseAudioCodec" prefWidth="1000.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <Label text="Samplerate" GridPane.rowIndex="3" />
                               <TextField fx:id="samplerateText" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <Label text="Bitrate" GridPane.rowIndex="2" />

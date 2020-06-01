@@ -53,11 +53,11 @@ public class Controller {
     // dropdown menu which lets user select profile for task
     public ChoiceBox<Object> chooseProfile = new ChoiceBox<>();
     // dropdown menu which lets user select VideoCodec for the task
-    public ChoiceBox<Codec> chooseVideoCodec = new ChoiceBox<>();
+    public ComboBox<Codec> chooseVideoCodec = new ComboBox<>();
     // dropdown menu which lets user select AudioCodec for task
-    public ChoiceBox<Codec> chooseAudioCodec = new ChoiceBox<>();
+    public ComboBox<Codec> chooseAudioCodec = new ComboBox<>();
     // dropdown menu which lets user select Format for task
-    public ChoiceBox<Format> chooseFormat = new ChoiceBox<>();
+    public ComboBox<Format> chooseFormat = new ComboBox<>();
 
     // Fields for settings
     public TextField bitrateText, samplerateText, newProfileName, videoWidth, videoHeight, frameRate;
@@ -424,6 +424,7 @@ public class Controller {
         videoHeight.setText(Integer.toString(selectedProfile.getVideoHeight()));
         bitrateText.setText(Integer.toString(selectedProfile.getAudioBitRate()));
         frameRate.setText(Integer.toString((int) selectedProfile.getVideoFrameRate()));
+        outputPath.setText(selectedProfile.getOutputPath().toAbsolutePath().toString());
         //TODO handle double Text Data (framerate)
         
         // re-add listeners
