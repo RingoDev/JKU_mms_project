@@ -7,6 +7,7 @@ import JKU_MMS.Model.Profile;
 import JKU_MMS.Model.Task;
 import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -38,6 +39,7 @@ public class Controller {
     public static FFprobe ffprobe;
     public static FFmpegExecutor fFmpegExecutor;
     private final Model model;
+    private static boolean executeQueue;
 
     // General Options
 
@@ -132,16 +134,18 @@ public class Controller {
             ffmpeg = new FFmpeg(ffmpeg_path);
         } catch (IOException e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Could not find ffmpeg", ButtonType.OK);
+            alert.show();
             throw new IllegalStateException("Could not find ffmpeg required for controller");
-            // TODO: handle exception and open a popup for the user to set a path
         }
 
         try {
             ffprobe = new FFprobe(ffprobe_path);
         } catch (IOException e) {
             e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Could not find ffprobe", ButtonType.OK);
+            alert.show();
             throw new IllegalStateException("Could not find ffprobe required for controller");
-            // TODO: handle exception and open a popup for the user to set a path
         }
         fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
 
@@ -187,14 +191,16 @@ public class Controller {
             try {
                 this.model.tasks.add(Task.of(filePath, (Profile) chooseProfile.getSelectionModel().getSelectedItem(), true));
             } catch (IOException e) {
-                //TODO create PopUp Window with ErrorMessage
-                e.printStackTrace();
-                System.err.println("Unable to create task for " + filePath + " because the file could not be accessed");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "File '" + filePath + "' could not be found", ButtonType.OK);
+                alert.showAndWait();
             }
         });
 
         process.setOnAction(actionEvent -> {
-            // TODO: start processing all Tasks in model.tasks
+            executeQueue = true;
+            if (fFmpegExecutor == null) {
+                this.startNextTask();
+            }
         });
 
         outputChooser.setOnAction(actionEvent -> {
@@ -207,9 +213,7 @@ public class Controller {
             }
         });
 
-
         setChoiceBoxConverters();
-
 
         fillChoiceBoxes();
 
@@ -255,6 +259,19 @@ public class Controller {
 
                 System.out.println("Starting task " + task.fileName.getValue());
                 task.progress.setValue("Starting...");
+
+                task.setCompletionListener((t, e1) -> {
+                    if (e1 != null) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.ERROR, "Error executing task " + task.getError().getMessage(), ButtonType.OK);
+                            alert.show();
+                        });
+                    }
+
+                    if (executeQueue) {
+                        startNextTask();
+                    }
+                });
 
                 ffmpegTask = new Thread(task);
                 ffmpegTask.start();
@@ -344,6 +361,50 @@ public class Controller {
         // this fires the profileChanged listener which fills up the settings and adds the settingsChanged listener to each component afterwards
         Object item = chooseProfile.getItems().get(0) instanceof Separator ? chooseProfile.getItems().get(1) : chooseProfile.getItems().get(0);
         chooseProfile.getSelectionModel().select(item);
+    }
+
+    private void startNextTask() {
+        int next_task = 0;
+        for (int i = 0; i < model.tasks.size(); i++) {
+            Task t = model.tasks.get(i);
+            if (! t.progress.getValue().equalsIgnoreCase("not started")) {
+                next_task++;
+            } else {
+                break;
+            }
+        }
+
+        if (next_task == model.tasks.size()) {
+            executeQueue = false;
+        }
+
+        if (executeQueue) {
+            Task task = model.tasks.get(next_task);
+            String progress = task.progress.getValue();
+            if (progress.equalsIgnoreCase("not started")) {
+                System.out.println("Starting task " + task.fileName.getValue());
+                task.progress.setValue("Starting...");
+
+                task.setCompletionListener((t, e1) -> {
+                    if (e1 != null) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.ERROR, "Error executing task " + task.getError().getMessage(), ButtonType.OK);
+                            alert.show();
+                        });
+                    }
+
+                    if (executeQueue) {
+                        startNextTask();
+                    }
+                });
+
+                task.run();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Can only start unstarted tasks", ButtonType.OK);
+                alert.show();
+                throw new RuntimeException("Can only start unstarted tasks");
+            }
+        }
     }
 
     public void close() {

@@ -1,6 +1,8 @@
 package JKU_MMS.Model;
 
 import JKU_MMS.Controller;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
 import net.bramp.ffmpeg.builder.FFmpegOutputBuilder;
@@ -21,6 +23,8 @@ public class Task implements Runnable {
     private final FFmpegBuilder builder;
     private final double videoDuration;
     private FFmpegJob job;
+    private Exception error;
+    private OnTaskCompleteListener listener;
 
     /**
      * Initializes a new task object
@@ -156,12 +160,18 @@ public class Task implements Runnable {
      * @param executor
      */
     public void build(FFmpegExecutor executor) {
-        job = executor.createJob(builder, new ProgressListener() {
-            @Override
-            public void progress(Progress arg0) {
-                progress.setValue((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration) + "%");
-            }
-        });
+        try {
+            job = executor.createJob(builder, new ProgressListener() {
+                @Override
+                public void progress(Progress arg0) {
+                    progress.setValue((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration) + "%");
+                }
+            });
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Unable to start this task " + e.toString(), ButtonType.OK);
+            alert.showAndWait();
+            error = e;
+        }
     }
 
     /**
@@ -174,6 +184,10 @@ public class Task implements Runnable {
         FFmpegJob job = executor.createJob(builder, progressListener);
     }
 
+    public void setCompletionListener(OnTaskCompleteListener listener) {
+        this.listener = listener;
+    }
+
     /**
      * Starts the computation of the job. This should be started in a thread.
      *
@@ -184,8 +198,25 @@ public class Task implements Runnable {
         if (job == null) {
             throw new IllegalStateException("Job has to be built before being started");
         }
-        this.job.run();
+        try {
+            this.job.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+            progress.setValue("Error");
+            error = e;
+            listener.taskComplete(this, e);
+            return;
+        }
         progress.setValue("Finished");
+        listener.taskComplete(this, null);
+    }
+
+    /**
+     * Returns the error
+     * @return
+     */
+    public Exception getError() {
+        return error;
     }
 
     /**
