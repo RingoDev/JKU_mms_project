@@ -15,6 +15,7 @@ import javafx.beans.property.StringProperty;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class Task implements Runnable {
     public final StringProperty fileName;
@@ -92,7 +93,11 @@ public class Task implements Runnable {
      * @param profile
      */
     private static void applyProfile(Task task, Profile profile) {
-        FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toAbsolutePath().toString() + "/" + Paths.get(task.fileName.getValue()).getFileName()).toString());
+        FFmpegOutputBuilder b = task.builder.addOutput(Paths.get(profile.getOutputPath().toAbsolutePath().toString() + "/" +
+                Paths.get(task.fileName.getValue()).getFileName()).toString().split("\\.")[0] + "." +
+                profile.getFormat().toString().split("-")[0].strip());
+
+        // TODO: show warnings if incompatible settings are detected e.g. different output format but code is copy etc.
 
         if (profile.getVideoCodec().getCodecName().equals("copy")) {
             b.setVideoCodec("copy");

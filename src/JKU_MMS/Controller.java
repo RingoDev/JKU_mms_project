@@ -408,7 +408,16 @@ public class Controller {
     }
 
     public void close() {
-        // TODO join ffmpegTask thread with timeout
+        if (ffmpegTask != null) {
+
+            try {
+                ffmpegTask.join(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            ffmpegTask.interrupt();
+        }
     }
 
     /**
