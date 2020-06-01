@@ -23,7 +23,7 @@ public class Profile {
     private int videoHeight = -1;
     private Format format = new Format("auto");  // "mp4, mkv...."
     // all encoded videos with this profile will be saved in this directory
-    private Path outputPath = Path.of("./");
+    private Path outputPath = Path.of("output");
     private boolean custom = true;
     public Profile(String name) {
         this.name = name;
