@@ -9,6 +9,8 @@ import JKU_MMS.Settings.Codec;
 import JKU_MMS.Settings.Format;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
@@ -53,13 +55,13 @@ public class Controller {
     // Conversion Options
 
     // dropdown menu which lets user select profile for task
-    public ChoiceBox<Object> chooseProfile = new ChoiceBox<>();
+    public ChoiceBox<Object> chooseProfile;
     // dropdown menu which lets user select VideoCodec for the task
-    public ComboBox<Codec> chooseVideoCodec = new ComboBox<>();
+    public ComboBox<Codec> chooseVideoCodec;
     // dropdown menu which lets user select AudioCodec for task
-    public ComboBox<Codec> chooseAudioCodec = new ComboBox<>();
+    public ComboBox<Codec> chooseAudioCodec;
     // dropdown menu which lets user select Format for task
-    public ComboBox<Format> chooseFormat = new ComboBox<>();
+    public ComboBox<Format> chooseFormat;
 
     // Fields for settings
     public TextField bitrateText, samplerateText, newProfileName, videoWidth, videoHeight, frameRate;
@@ -96,6 +98,7 @@ public class Controller {
 
     // Holds settings data from database
     public Map<String, Profile> profileMap;
+    public ObservableList<Object> profiles;
     public Set<Codec> videoCodecs;
     public Set<Codec> audioCodecs;
     public Set<Format> formats;
@@ -107,9 +110,10 @@ public class Controller {
     private ChangeListener<Object> settingsChangedListener;
 
     public Controller() throws IOException {
+    	profiles = FXCollections.observableArrayList();
         this.model = new Model();
         profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
-        settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();        
+        settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
         
         if (SystemUtils.IS_OS_LINUX) {
             // TODO: set with whereis command
@@ -226,6 +230,8 @@ public class Controller {
         frameRate.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoFrameRate(doubleChanged(t1)));
         videoWidth.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoWidth(integerChanged(t1)));
         videoHeight.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setVideoHeight(integerChanged(t1)));
+        bitrateText.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioBitRate(integerChanged(t1)));
+        samplerateText.textProperty().addListener((observableValue, s, t1) -> model.currentSettings.setAudioSampleRate(integerChanged(t1)));
 
         // setting up the table with the tasks
         taskTable.setItems(model.tasks);
@@ -309,6 +315,7 @@ public class Controller {
             String name = newProfileName.getText();
             if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
             Profile newProfile = getProfile();
+            
             // we should allow double Settings for Simplicity
             //if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
             if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
@@ -323,11 +330,11 @@ public class Controller {
             newProfileName.setText("");
             // temporarily remove the listener because we don't want profileChanged() to be called here
             chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
+            // remove the custom profile
+            profiles.remove(model.currentSettings);
             // add the new profile and select it
-        	chooseProfile.getItems().add(0, newProfile);
+        	profiles.add(0, newProfile);
         	chooseProfile.getSelectionModel().select(newProfile);
-        	// remove the custom profile
-        	chooseProfile.getItems().remove(model.currentSettings);
         	// re-add the listener
             chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
         	System.out.println("Saved profile as " + name);
@@ -359,7 +366,7 @@ public class Controller {
         chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
         // display the first Value in list as standard select
         // this fires the profileChanged listener which fills up the settings and adds the settingsChanged listener to each component afterwards
-        Object item = chooseProfile.getItems().get(0) instanceof Separator ? chooseProfile.getItems().get(1) : chooseProfile.getItems().get(0);
+        Object item = profiles.get(0) instanceof Separator ? profiles.get(1) : profiles.get(0);
         chooseProfile.getSelectionModel().select(item);
     }
 
@@ -426,9 +433,10 @@ public class Controller {
      */
     public void settingsChanged() {
     	System.out.println("Settings were changed");
-    	if (!chooseProfile.getItems().contains(model.currentSettings)) {
+    	System.out.println(model.currentSettings.toStringDetailed());
+    	if (!profiles.contains(model.currentSettings)) {
     		System.out.println("Adding custom profile to the ChoiceBox");
-    		chooseProfile.getItems().add(model.currentSettings);
+    		profiles.add(0, model.currentSettings);
     		// temporarily remove the listener so profileChanged() doesn't get called
     		// this is because it should only get called when the user changes the profile or on startup, but not when we change it to the custom option
     		chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
@@ -455,6 +463,7 @@ public class Controller {
         int height = videoHeight.getText().isEmpty() ? -1 : Integer.parseInt(videoHeight.getText());
         int bitrate = bitrateText.getText().isEmpty() ? -1 : Integer.parseInt(bitrateText.getText());
         double framerate = frameRate.getText().isEmpty() ? -1 : Double.parseDouble(frameRate.getText());
+        String output = outputPath.getText();
 
         Profile p = new Profile(profileName);
         p.setFormat(format);
@@ -467,6 +476,7 @@ public class Controller {
         p.setVideoHeight(height);
         p.setAudioBitRate(bitrate);
         p.setVideoFrameRate(framerate);
+        p.setOutputPath(Paths.get(output).toAbsolutePath());
 
         return p;
     }
@@ -478,22 +488,23 @@ public class Controller {
     public void profileChanged() {
         Profile selectedProfile = (Profile) chooseProfile.getSelectionModel().getSelectedItem();
         System.out.println("Profile was changed to " + selectedProfile.getName());
+        System.out.println(selectedProfile.toStringDetailed());
         // temporarily remove the settingsChangedListeners
         // this is because settingsChanged() should only fire when the user changes the settings, but not when we do it
     	removeSettingsChangedListener();
         // remove current_settings from the ChoiceBox if necessary
-    	chooseProfile.getItems().remove(model.currentSettings);
+    	profiles.remove(model.currentSettings);
 
         chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
         chooseVideoCodec.setValue(selectedProfile.getVideoCodec());
         chooseAudioCodec.getSelectionModel().select(selectedProfile.getAudioCodec());
         subtitlesButton.setSelected(selectedProfile.removeSubtitles());
         audioButton.setSelected(selectedProfile.removeAudio());
-        samplerateText.setText(Integer.toString(selectedProfile.getAudioSampleRate()));
-        videoWidth.setText(Integer.toString(selectedProfile.getVideoWidth()));
-        videoHeight.setText(Integer.toString(selectedProfile.getVideoHeight()));
-        bitrateText.setText(Integer.toString(selectedProfile.getAudioBitRate()));
-        frameRate.setText(Integer.toString((int) selectedProfile.getVideoFrameRate()));
+        samplerateText.setText(selectedProfile.getAudioSampleRate() == -1 ? "" : Integer.toString(selectedProfile.getAudioSampleRate()));
+        videoWidth.setText(selectedProfile.getVideoWidth() == -1 ? "" : Integer.toString(selectedProfile.getVideoWidth()));
+        videoHeight.setText(selectedProfile.getVideoHeight() == -1 ? "" : Integer.toString(selectedProfile.getVideoHeight()));
+        bitrateText.setText(selectedProfile.getAudioBitRate() == -1 ? "" : Integer.toString(selectedProfile.getAudioBitRate()));
+        frameRate.setText(selectedProfile.getVideoFrameRate() == -1 ? "" : Integer.toString((int) selectedProfile.getVideoFrameRate()));
         outputPath.setText(selectedProfile.getOutputPath().toAbsolutePath().toString());
         //TODO handle double Text Data (framerate)
         
@@ -505,9 +516,13 @@ public class Controller {
      * Fills the ChoiceBoxes with Profiles, Codecs and Formats
      */
     private void fillChoiceBoxes() {
-    	chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
-        chooseProfile.getItems().add(new Separator());
-        chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
+    	chooseProfile.setItems(profiles);
+    	profiles.addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+    	profiles.add(new Separator());
+    	profiles.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
+//    	  chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+//        chooseProfile.getItems().add(new Separator());
+//        chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
         
         // adding saved VideoCodecs to the ChoiceBox
         chooseVideoCodec.getItems().addAll(videoCodecs);
@@ -616,6 +631,7 @@ public class Controller {
         videoHeight.textProperty().addListener(settingsChangedListener);
         frameRate.textProperty().addListener(settingsChangedListener);
         samplerateText.textProperty().addListener(settingsChangedListener);
+        outputPath.textProperty().addListener(settingsChangedListener);
 	}
     
     private void removeSettingsChangedListener() {
@@ -629,5 +645,6 @@ public class Controller {
         videoHeight.textProperty().removeListener(settingsChangedListener);
         frameRate.textProperty().removeListener(settingsChangedListener);
         samplerateText.textProperty().removeListener(settingsChangedListener);
+        outputPath.textProperty().removeListener(settingsChangedListener);
     }
 }

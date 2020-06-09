@@ -44,7 +44,8 @@ public class Profile {
                 Objects.equals(audioCodec, profile.audioCodec) &&
                 Objects.equals(VideoCodec, profile.VideoCodec) &&
                 Objects.equals(format, profile.format) &&
-                Objects.equals(outputPath, profile.outputPath);
+                Objects.equals(outputPath, profile.outputPath) &&
+                name.equals(profile.name);
     }
 
     @Override
@@ -156,4 +157,12 @@ public class Profile {
     public String toString() {
         return name;
     }
+
+	public String toStringDetailed() {
+		return "Profile [name=" + name + ", removeSubtitles=" + removeSubtitles + ", removeAudio=" + removeAudio
+				+ ", audioCodec=" + audioCodec + ", audioSampleRate=" + audioSampleRate + ", audioBitRate="
+				+ audioBitRate + ", VideoCodec=" + VideoCodec + ", VideoFrameRate=" + VideoFrameRate + ", videoWidth="
+				+ videoWidth + ", videoHeight=" + videoHeight + ", format=" + format + ", outputPath=" + outputPath
+				+ ", custom=" + custom + "]";
+	}
 }
