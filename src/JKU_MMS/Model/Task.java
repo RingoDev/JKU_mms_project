@@ -99,16 +99,12 @@ public class Task implements Runnable {
 
         // TODO: show warnings if incompatible settings are detected e.g. different output format but code is copy etc.
 
-        if (profile.getVideoCodec().getCodecName().equals("copy")) {
-            b.setVideoCodec("copy");
-        } else if (! profile.getVideoCodec().getCodecName().equals("auto")) {
+        if (! profile.getVideoCodec().getCodecName().equals("auto")) {
             b.setVideoCodec(profile.getVideoCodec().getCodecName());
             System.out.println("video codec set to: " + profile.getVideoCodec().getCodecName());
         }
 
-        if (profile.getAudioCodec().getCodecName().equals("copy")) {
-            b.setAudioCodec("copy");
-        } else if (! profile.getAudioCodec().getCodecName().equals("auto")) {
+        if (! profile.getAudioCodec().getCodecName().equals("auto")) {
             b.setAudioCodec(profile.getAudioCodec().getCodecName());
             System.out.println("audio codec set to: " + profile.getAudioCodec().getCodecName());
         }
