@@ -1,4 +1,4 @@
-package JKU_MMS.Settings;
+package JKU_MMS.Model.Settings;
 
 import java.util.Objects;
 

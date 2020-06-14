@@ -1,8 +1,8 @@
 package JKU_MMS.Database;
 
 import JKU_MMS.Model.Profile;
-import JKU_MMS.Settings.Codec;
-import JKU_MMS.Settings.Format;
+import JKU_MMS.Model.Settings.Codec;
+import JKU_MMS.Model.Settings.Format;
 
 
 import java.io.BufferedReader;
@@ -390,7 +390,7 @@ public class SQLite {
     /**
      * was used to insert codec into Database from String
      *
-     * @param codec
+     * @param codec the codec to insert
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     private static void add(String codec) throws SQLException {
@@ -428,7 +428,7 @@ public class SQLite {
     /**
      * was used to read in codecs from file
      *
-     * @throws IOException
+     * @throws IOException If the file cannot be read
      * @throws SQLException if a Database error occurs or if the connection is closed
      */
     public static void readFile() throws IOException, SQLException {

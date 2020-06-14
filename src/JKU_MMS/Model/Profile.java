@@ -1,7 +1,7 @@
 package JKU_MMS.Model;
 
-import JKU_MMS.Settings.Codec;
-import JKU_MMS.Settings.Format;
+import JKU_MMS.Model.Settings.Codec;
+import JKU_MMS.Model.Settings.Format;
 
 import java.nio.file.Path;
 import java.util.Objects;
