@@ -1,18 +1,22 @@
-package JKU_MMS;
+package JKU_MMS.Controller;
 
 
 import JKU_MMS.Database.SQLite;
+import JKU_MMS.Main;
 import JKU_MMS.Model.Model;
 import JKU_MMS.Model.Profile;
-import JKU_MMS.Model.Task;
 import JKU_MMS.Model.Settings.Codec;
 import JKU_MMS.Model.Settings.Format;
+import JKU_MMS.Model.Task;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
@@ -27,6 +31,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Map;
@@ -44,6 +49,9 @@ public class Controller {
     private static boolean executeQueue;
 
     // General Options
+
+    //the main Container
+    public VBox main;
 
     // opens a file chooser and lets the user choose a video file
     public Button inputChooser;
@@ -65,7 +73,7 @@ public class Controller {
 
     // Fields for settings
     public TextField bitrateText, samplerateText, newProfileName, videoWidth, videoHeight, frameRate;
-    public RadioButton subtitlesButton,audioButton;
+    public RadioButton subtitlesButton, audioButton;
 
     // create profile button
     public Button createProfile;
@@ -104,17 +112,17 @@ public class Controller {
     public Set<Format> formats;
 
     private Thread ffmpegTask;
-    
+
     // Listeners
-    private ChangeListener<Object> profileChangedListener;
-    private ChangeListener<Object> settingsChangedListener;
+    private final ChangeListener<Object> profileChangedListener;
+    private final ChangeListener<Object> settingsChangedListener;
 
     public Controller() throws IOException {
-    	profiles = FXCollections.observableArrayList();
+        profiles = FXCollections.observableArrayList();
         this.model = new Model();
         profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
         settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
-        
+
         if (SystemUtils.IS_OS_LINUX) {
             // TODO: set with whereis command
             //ProcessBuilder ffmpegWh = new ProcessBuilder("whereis", "ffmpeg");
@@ -130,6 +138,7 @@ public class Controller {
             ffprobe_path = reader.readLine();
             reader.close();
 
+            //TODO can we erase this line?
             //TODO createDirectory when Task is started, not when application is opened.
             model.currentSettings.setOutputPath(Files.createTempDirectory("encoded_tmp-"));
         }
@@ -185,7 +194,7 @@ public class Controller {
             File file = fileChooser.showOpenDialog(Main.window);
 
             if (file != null) {
-                inputFile.setText(file.getAbsolutePath());
+                setInputFile(file.getAbsolutePath());
             }
         });
 
@@ -315,7 +324,7 @@ public class Controller {
             String name = newProfileName.getText();
             if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
             Profile newProfile = getProfile();
-            
+
             // we should allow double Settings for Simplicity
             //if (profileMap.containsValue(newProfile)) throw new RuntimeException("Profile with these settings already exists");
             if (profileMap.containsKey(name)) throw new RuntimeException("Profile with this name already exists");
@@ -333,11 +342,11 @@ public class Controller {
             // remove the custom profile
             profiles.remove(model.currentSettings);
             // add the new profile and select it
-        	profiles.add(0, newProfile);
-        	chooseProfile.getSelectionModel().select(newProfile);
-        	// re-add the listener
+            profiles.add(0, newProfile);
+            chooseProfile.getSelectionModel().select(newProfile);
+            // re-add the listener
             chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
-        	System.out.println("Saved profile as " + name);
+            System.out.println("Saved profile as " + name);
         });
 
 
@@ -362,19 +371,21 @@ public class Controller {
                 new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
         frameRate.setTextFormatter(
                 new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
-        
+
         chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
         // display the first Value in list as standard select
         // this fires the profileChanged listener which fills up the settings and adds the settingsChanged listener to each component afterwards
         Object item = profiles.get(0) instanceof Separator ? profiles.get(1) : profiles.get(0);
         chooseProfile.getSelectionModel().select(item);
+
+        addDragAndDrop();
     }
 
     private void startNextTask() {
         int next_task = 0;
         for (int i = 0; i < model.tasks.size(); i++) {
             Task t = model.tasks.get(i);
-            if (! t.progress.getValue().equalsIgnoreCase("not started")) {
+            if (!t.progress.getValue().equalsIgnoreCase("not started")) {
                 next_task++;
             } else {
                 break;
@@ -432,18 +443,18 @@ public class Controller {
      * Is called when the user changes settings.
      */
     public void settingsChanged() {
-    	System.out.println("Settings were changed");
-    	System.out.println(model.currentSettings.toStringDetailed());
-    	if (!profiles.contains(model.currentSettings)) {
-    		System.out.println("Adding custom profile to the ChoiceBox");
-    		profiles.add(0, model.currentSettings);
-    		// temporarily remove the listener so profileChanged() doesn't get called
-    		// this is because it should only get called when the user changes the profile or on startup, but not when we change it to the custom option
-    		chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
-    		chooseProfile.getSelectionModel().select(model.currentSettings);
-    		// re-add the listener
-    		chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
-    	}
+        System.out.println("Settings were changed");
+        System.out.println(model.currentSettings.toStringDetailed());
+        if (!profiles.contains(model.currentSettings)) {
+            System.out.println("Adding custom profile to the ChoiceBox");
+            profiles.add(0, model.currentSettings);
+            // temporarily remove the listener so profileChanged() doesn't get called
+            // this is because it should only get called when the user changes the profile or on startup, but not when we change it to the custom option
+            chooseProfile.getSelectionModel().selectedItemProperty().removeListener(profileChangedListener);
+            chooseProfile.getSelectionModel().select(model.currentSettings);
+            // re-add the listener
+            chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
+        }
     }
 
     /**
@@ -491,9 +502,9 @@ public class Controller {
         System.out.println(selectedProfile.toStringDetailed());
         // temporarily remove the settingsChangedListeners
         // this is because settingsChanged() should only fire when the user changes the settings, but not when we do it
-    	removeSettingsChangedListener();
+        removeSettingsChangedListener();
         // remove current_settings from the ChoiceBox if necessary
-    	profiles.remove(model.currentSettings);
+        profiles.remove(model.currentSettings);
 
         chooseFormat.getSelectionModel().select(selectedProfile.getFormat());
         chooseVideoCodec.setValue(selectedProfile.getVideoCodec());
@@ -507,7 +518,7 @@ public class Controller {
         frameRate.setText(selectedProfile.getVideoFrameRate() == -1 ? "" : Integer.toString((int) selectedProfile.getVideoFrameRate()));
         outputPath.setText(selectedProfile.getOutputPath().toAbsolutePath().toString());
         //TODO handle double Text Data (framerate)
-        
+
         // re-add listeners
         addSettingsChangedListener();
     }
@@ -516,14 +527,11 @@ public class Controller {
      * Fills the ChoiceBoxes with Profiles, Codecs and Formats
      */
     private void fillChoiceBoxes() {
-    	chooseProfile.setItems(profiles);
-    	profiles.addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
-    	profiles.add(new Separator());
-    	profiles.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
-//    	  chooseProfile.getItems().addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
-//        chooseProfile.getItems().add(new Separator());
-//        chooseProfile.getItems().addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
-        
+        chooseProfile.setItems(profiles);
+        profiles.addAll(profileMap.values().stream().filter(Profile::isCustom).collect(Collectors.toList()));
+        profiles.add(new Separator());
+        profiles.addAll(profileMap.values().stream().filter(p -> !p.isCustom()).collect(Collectors.toList()));
+
         // adding saved VideoCodecs to the ChoiceBox
         chooseVideoCodec.getItems().addAll(videoCodecs);
         chooseVideoCodec.getSelectionModel().select(0);
@@ -619,10 +627,10 @@ public class Controller {
             }
         });
     }
-    
-	private void addSettingsChangedListener() {
-		chooseFormat.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
-		chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+
+    private void addSettingsChangedListener() {
+        chooseFormat.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         chooseVideoCodec.getSelectionModel().selectedItemProperty().addListener(settingsChangedListener);
         audioButton.selectedProperty().addListener(settingsChangedListener);
         subtitlesButton.selectedProperty().addListener(settingsChangedListener);
@@ -632,11 +640,11 @@ public class Controller {
         frameRate.textProperty().addListener(settingsChangedListener);
         samplerateText.textProperty().addListener(settingsChangedListener);
         outputPath.textProperty().addListener(settingsChangedListener);
-	}
-    
+    }
+
     private void removeSettingsChangedListener() {
-    	chooseFormat.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
-    	chooseAudioCodec.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
+        chooseFormat.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
+        chooseAudioCodec.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
         chooseVideoCodec.getSelectionModel().selectedItemProperty().removeListener(settingsChangedListener);
         audioButton.selectedProperty().removeListener(settingsChangedListener);
         subtitlesButton.selectedProperty().removeListener(settingsChangedListener);
@@ -646,5 +654,34 @@ public class Controller {
         frameRate.textProperty().removeListener(settingsChangedListener);
         samplerateText.textProperty().removeListener(settingsChangedListener);
         outputPath.textProperty().removeListener(settingsChangedListener);
+    }
+
+    private void addDragAndDrop() {
+
+        main.setOnDragOver(event -> {
+            if (event.getGestureSource() != main
+                    && event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.ANY);
+            }
+            event.consume();
+        });
+
+        main.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+            if (db.hasFiles()) {
+                setInputFile(db.getFiles().get(0).getAbsolutePath());
+                success = true;
+            }
+            /* let the source know whether the string was successfully
+             * transferred and used */
+            event.setDropCompleted(success);
+            event.consume();
+        });
+
+    }
+
+    private void setInputFile(String str){
+        inputFile.setText(str);
     }
 }

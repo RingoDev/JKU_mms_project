@@ -1,5 +1,6 @@
 package JKU_MMS;
 
+import JKU_MMS.Controller.Controller;
 import JKU_MMS.Database.ConnectionFailedException;
 import JKU_MMS.Database.SQLite;
 import javafx.application.Application;
@@ -36,8 +37,6 @@ public class Main extends Application {
         primaryStage.setScene(mainScene);
         primaryStage.show();
 
-        primaryStage.setOnCloseRequest(event -> {
-            controller.close();
-        });
+        primaryStage.setOnCloseRequest(event -> controller.close());
     }
 }

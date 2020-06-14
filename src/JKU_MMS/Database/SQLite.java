@@ -441,7 +441,4 @@ public class SQLite {
         }
         reader.close();
     }
-
-    //TODO reset Formats in DB because there was a reading mistake
-
 }

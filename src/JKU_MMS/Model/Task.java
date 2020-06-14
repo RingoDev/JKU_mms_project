@@ -1,6 +1,6 @@
 package JKU_MMS.Model;
 
-import JKU_MMS.Controller;
+import JKU_MMS.Controller.Controller;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import net.bramp.ffmpeg.FFmpegExecutor;
@@ -15,7 +15,6 @@ import javafx.beans.property.StringProperty;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class Task implements Runnable {
     public final StringProperty fileName;
@@ -162,12 +161,7 @@ public class Task implements Runnable {
      */
     public void build(FFmpegExecutor executor) {
         try {
-            job = executor.createJob(builder, new ProgressListener() {
-                @Override
-                public void progress(Progress arg0) {
-                    progress.setValue((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration) + "%");
-                }
-            });
+            job = executor.createJob(builder, arg0 -> progress.setValue((int) ((arg0.out_time_ns / 1_000_000_0.0) / videoDuration) + "%"));
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Unable to start this task " + e.toString(), ButtonType.OK);
             alert.showAndWait();
@@ -218,7 +212,7 @@ public class Task implements Runnable {
 
     /**
      * Returns the error
-     * @return
+     * @return the error
      */
     public Exception getError() {
         return error;
