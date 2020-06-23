@@ -223,7 +223,6 @@ public class SQLite {
      */
     public static Map<String, Profile> getAllProfiles() throws SQLException, NoSuchFieldException {
         //sorts by Type(custom/premade) and then by Name
-        //TODO test comparator
         Map<String, Profile> map = new HashMap<>();
 
         String sql = "SELECT * FROM Profiles";
