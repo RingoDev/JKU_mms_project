@@ -446,18 +446,18 @@ aus, da ein einzelner FFmpeg Task die CPU schon zu 100% auslastet.
 In der folgenden Tabelle findet sich eine Auflistung der unterstützten
 Optionen, welche auch in einem Profil gespeichert werden können:
 
-         Name               Beispiele                                     Beschreibung
-  ------------------- ---------------------- -----------------------------------------------------------------------
-     Video Format      .mp4 .mkv .webm etc.   Diese Einstellung legt die Dateiendung des verarbeiteten Videos fest.
-      Video Codec        h264, h265 etc.               Setzt den Codec mit dem das Video verarbeitet wird.
-      Audio Codec         AAC, FLAC etc.            Setzt den Audio Codec mit dem das Audio verarbeitet wird.
-   Video Frame Rate          30, 60..                            Setzt die Framerate des Videos.
-     Video Height          1080, 720..                          Setzt die Höhe des neuen Videos.
-      Video Width          1920, 1080..                        Setzt die Breite des neuen Videos.
-    Audio Bit Rate         128k, 384k..                             Setzt die Audio Bit Rate.
-   Audio Sample Rate      44100, 48000..                          Setzt die Audio Sample Rate.
-     Remove Audio            ja/ nein             Entfernt die Audiospur, wenn die Option auf "Ja" gesetzt ist.
-    Remove Subitles          ja/ nein            Entfernt die Untertitel, wenn die Option auf "Ja" gesetzt ist.
+| Name              | Beispiele            | Beschreibung                                                          |
+|-------------------|----------------------|-----------------------------------------------------------------------|
+| Video Format      | .mp4 .mkv .webm etc. | Diese Einstellung legt die Dateiendung des verarbeiteten Videos fest. |
+| Video Codec       | h264, h265 etc.      | Setzt den Codec mit dem das Video verarbeitet wird.                   |
+| Audio Codec       | AAC, FLAC etc.       | Setzt den Audio Codec mit dem das Audio verarbeitet wird.             |
+| Video Frame Rate  | 30, 60..             | Setzt die Framerate des Videos.                                       |
+| Video Height      | 1080, 720..          | Setzt die Höhe des neuen Videos.                                      |
+| Video Width       | 1920, 1080..         | Setzt die Breite des neuen Videos.                                    |
+| Audio Bit Rate    | 128k, 384k..         | Setzt die Audio Bit Rate.                                             |
+| Audio Sample Rate | 44100, 48000..       | Setzt die Audio Sample Rate.                                          |
+| Remove Audio      | ja/ nein             | Entfernt die Audiospur, wenn die Option auf "Ja" gesetzt ist.         |
+| Remove Subitles   | ja/ nein             | Entfernt die Untertitel, wenn die Option auf "Ja" gesetzt ist.        |
 
 Anleitung
 =========
