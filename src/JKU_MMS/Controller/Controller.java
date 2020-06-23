@@ -1,19 +1,43 @@
 package JKU_MMS.Controller;
 
 
-import JKU_MMS.Database.SQLite;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.SQLException;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.SystemUtils;
+
 import JKU_MMS.Main;
+import JKU_MMS.Database.SQLite;
 import JKU_MMS.Model.Model;
 import JKU_MMS.Model.Profile;
+import JKU_MMS.Model.Task;
 import JKU_MMS.Model.Settings.Codec;
 import JKU_MMS.Model.Settings.Format;
-import JKU_MMS.Model.Task;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
@@ -24,20 +48,6 @@ import javafx.util.converter.IntegerStringConverter;
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
-import org.apache.commons.lang3.SystemUtils;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 
 public class Controller {
@@ -137,10 +147,6 @@ public class Controller {
             ffmpeg_path = reader.readLine();
             ffprobe_path = reader.readLine();
             reader.close();
-
-            //TODO can we erase this line?
-            //TODO createDirectory when Task is started, not when application is opened.
-            model.currentSettings.setOutputPath(Files.createTempDirectory("encoded_tmp-"));
         }
 
         try {
@@ -203,6 +209,7 @@ public class Controller {
 
             try {
                 this.model.tasks.add(Task.of(filePath, (Profile) chooseProfile.getSelectionModel().getSelectedItem(), true));
+                Files.createDirectory(Paths.get(outputPath.getText()));
             } catch (IOException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "File '" + filePath + "' could not be found", ButtonType.OK);
                 alert.showAndWait();
@@ -302,9 +309,8 @@ public class Controller {
             }
             Task t = model.tasks.get(idx);
             if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
-                // TODO: stop a running task
-                // in case you can not stop a running FFmpeg operation with this wrapper just throw an exception here
-                System.out.println("Stopping task: " + model.tasks.get(idx).fileName.getValue());
+                System.out.println("Can't stop a running task");
+                return;
             }
             System.out.println("Removing task: " + model.tasks.get(idx).fileName.getValue());
             model.tasks.remove(idx);
@@ -517,7 +523,6 @@ public class Controller {
         bitrateText.setText(selectedProfile.getAudioBitRate() == -1 ? "" : Integer.toString(selectedProfile.getAudioBitRate()));
         frameRate.setText(selectedProfile.getVideoFrameRate() == -1 ? "" : Integer.toString((int) selectedProfile.getVideoFrameRate()));
         outputPath.setText(selectedProfile.getOutputPath().toAbsolutePath().toString());
-        //TODO handle double Text Data (framerate)
 
         // re-add listeners
         addSettingsChangedListener();
