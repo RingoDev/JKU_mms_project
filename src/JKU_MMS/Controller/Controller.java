@@ -209,7 +209,7 @@ public class Controller {
 
             try {
                 this.model.tasks.add(Task.of(filePath, (Profile) chooseProfile.getSelectionModel().getSelectedItem(), true));
-                Files.createDirectory(Paths.get(outputPath.getText()));
+                Files.createDirectories(Paths.get(outputPath.getText()));
             } catch (IOException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "File '" + filePath + "' could not be found", ButtonType.OK);
                 alert.showAndWait();
