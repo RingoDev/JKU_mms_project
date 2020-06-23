@@ -33,6 +33,8 @@ public class Main extends Application {
 
         primaryStage.setTitle("Video Encoder");
         primaryStage.getIcons().add(new Image("file:icon.png"));
+        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(800);
         mainScene = new Scene(root, 800, 600);
         primaryStage.setScene(mainScene);
         primaryStage.show();

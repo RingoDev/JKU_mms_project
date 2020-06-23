@@ -68,7 +68,7 @@ public class Task implements Runnable {
         double duration = Controller.ffprobe.probe(filePath).format.duration;
 
         String profileName;
-        if (profile.getName().equals("CURRENT_SETTINGS")) {
+        if (profile.getName().equals("Custom")) {
             profileName = "Custom";
         } else {
             profileName = profile.getName();
@@ -176,7 +176,7 @@ public class Task implements Runnable {
      * @param progressListener
      */
     public void build(FFmpegExecutor executor, ProgressListener progressListener) {
-        FFmpegJob job = executor.createJob(builder, progressListener);
+        job = executor.createJob(builder, progressListener);
     }
 
     public void setCompletionListener(OnTaskCompleteListener listener) {
