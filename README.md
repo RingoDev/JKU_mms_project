@@ -26,10 +26,9 @@ Outline
     werden soll. Der Benutzer kann jederzeit neue Aufträge zu der
     Warteschlange hinzufügen/ entfernen/ stoppen etc.
 
-::: {#possibilities}
-Die Anwendung ermöglicht: {#posiibilities}
+
+Die Anwendung ermöglicht:
 -------------------------
-:::
 
 -   Der Benutzer kann mittels der GUI ein Video von einem Format zu
     einem anderen Konvertieren.
@@ -59,7 +58,7 @@ Die Anwendung ermöglicht: {#posiibilities}
 -   Der Benutzer kann Audiospuren aus dem Video entfernen/ neue
     hinzufügen.
 
-Die Anwendung ermöglicht NICHT:  {#impossibilities}
+Die Anwendung ermöglicht NICHT:
 --------------------------------
 
 -   Der Benutzer kann **nicht** mittels des Tools Videos
@@ -90,8 +89,7 @@ Bereiche/Einstellungen vernünftig gruppiert und gegliedert werden, und
 dass die GUI gut auf Resize-Operation anspricht. Die GUI in der finalen
 Version sieht folgendermaßen aus:
 
-![Der finale GUI Entwurf[]{label="guifinal"}](images/gui.png){#guifinal
-width="0.9\linewidth"}
+![Der finale GUI Entwurf[]{label="guifinal"}](images/gui.png)
 
 ### Fenstergröße
 
@@ -179,9 +177,7 @@ Die Daten werden mithilfe einer SQLite Datenbank gespeichert. Um diese
 SQLlite Datenbank ansteuern zu können wurde der [sqlite-jdbc
 Driver](https://github.com/xerial/sqlite-jdbc) verwendet.
 
-::: {#aufbau-der-sqlite-schnittstelle}
 ### Aufbau der SQLite-Schnittstelle
-:::
 
 Wenn das Programm gestartet wird, wird eine Verbindung zur Datenbank
 hergestellt. Diese Verbindung bleibt bestehen solange das Programm
@@ -206,14 +202,11 @@ werden konnte wird eine *ConnectionFailedException* geworfen.
         throw new ConnectionFailedException("Couldn't get a Connection to the Database");
       }
 
-::: {#schema-der-datenbank}
 ### Schema der Datenbank {#schema der datenbank}
-:::
 
 Die Datenbank wurde nach diesem Schema erstellt:
 
-![Aufbau der Datenbank[]{label="schema"}](images/db_schema.png){#schema
-width="0.9\linewidth"}
+![Aufbau der Datenbank[]{label="schema"}](images/db_schema.png)
 
 Die Datenbank beinhaltet alle angelegten Einstellungs-Profile
 (Benutzerdefinierte und Allgemeine) sowie alle von FFmpeg akzeptierten
@@ -223,9 +216,7 @@ Importieren aus der Datenbank als jeweilige Objekte (Profile, Codec,
 Format) instanziert und entweder als Liste oder als sortedSet an den
 Controller übergeben.
 
-::: {#profile}
 ### Profile
-:::
 
 Profile beinhalten folgende Eigenschaften:
 
@@ -267,9 +258,7 @@ ein Profil erstellt wird:
         return map;
       }
 
-::: {#codecs}
 ### Codecs
-:::
 
 Da es leider im CLI-Wrapper keine Möglichkeit gibt die Codecs und
 Formate aus FFmpeg zu exportieren, musste improvisiert werden. Mittels
@@ -281,8 +270,7 @@ Stelle stehen die Flags, dann die Codecbezeichnung und zum Schluss eine
 Beschreibung.
 
 ![Export der
-Codecs[]{label="ffmpeg-codecs"}](images/codecs.png){#ffmpeg-codecs
-width="0.9\linewidth"}
+Codecs[]{label="ffmpeg-codecs"}](images/codecs.png)
 
 Somit ergeben sich folgende Eigenschaften von Codecs die in die
 Datenbank übernommen wurden:
@@ -335,9 +323,7 @@ Codecs *copy* und *auto* ganz vorne einzureihen. Eine zukünftige
 Anwendungsmöglichkeit wäre jedoch zB. die Reihung je nach
 Verwendungshäufigkeit.
 
-::: {#formate}
 ### Formate
-:::
 
 Formate sind alle von FFmpeg akzeptierten Formate. Um diese Formate
 aufzulisten wurde analog zum Export der Codecs der Befehl *ffmpeg
@@ -485,8 +471,7 @@ Textfeld kopieren/eingeben, oder aber er benützt den \"Browse\"-Button
 rechts neben dem Textfeld, um ein FileChooser-Fenster zu öffnen.
 
 ![Auswählen der
-Input-Datei](images/evt1.png "fig:"){width="1\linewidth"}
-[\[evt1\]]{#evt1 label="evt1"}
+Input-Datei](images/evt1.png "fig:")
 
 Zudem muss der Benutzer auch den Output-Pfad festlegen. Dazu kann er
 wiederum entweder den Pfad des Ordners direkt in das Textfeld
@@ -498,8 +483,7 @@ sie überschrieben. Es sei denn es handelt sich um die Input-Datei
 selbst, dann wird beim Starten des Tasks eine Fehlermeldung ausgegeben.
 
 ![Auswählen des
-Output-Pfades](images/evt2.png "fig:"){width="1\linewidth"}
-[\[evt2\]]{#evt2 label="evt2"}
+Output-Pfades](images/evt2.png "fig:")
 
 Es stehen dem Benutzer viele verschiedene Optionen zur Verfügung, das
 angegebene Video nach seinen Vorstellungen neu zu kodieren (siehe
@@ -514,16 +498,14 @@ wird die originale Framerate, und eine benutzerdefinierte Breite, Höhe,
 Bitrate und Samplerate verwendet).
 
 ![Auswählen der Encoding
-Optionen](images/evt3.png "fig:"){width="1\linewidth"} [\[evt3\]]{#evt3
-label="evt3"}
+Optionen](images/evt3.png "fig:")
 
 Hat der Benutzer eine gültige Input-Datei, einen gültigen Output-Ordner,
 und seine gewünschten Einstellungen ausgewählt, so kann er den Task nun
 zur Liste hinzufügen indem er den \"Add Task\"-Button betätigt, welcher
 sich direkt über der Liste befindet.
 
-![Hinzufügen des Tasks](images/evt4.png "fig:"){width="1\linewidth"}
-[\[evt4\]]{#evt4 label="evt4"}
+![Hinzufügen des Tasks](images/evt4.png "fig:")
 
 Ausführen von Tasks
 -------------------
@@ -541,8 +523,7 @@ welcher sich direkt unter der Queue befindet. Dies funktioniert nur mit
 Tasks die den Status \"not started\" besitzen.
 
 ![Ausführen des zweiten
-Tasks](images/avt1.png "fig:"){width="1\linewidth"} [\[avt1\]]{#avt1
-label="avt1"}
+Tasks](images/avt1.png "fig:")
 
 ### Ausführen der Queue
 
@@ -554,8 +535,7 @@ Bild: beim Betätigen des Buttons wird zunächst der Task mit dem Profil
 Profil \"IPad\" gestartet, und zuletzt wird der Task mit dem Profil
 \"Android\" abgearbeitet).
 
-![Ausführen der Queue](images/avt2.png "fig:"){width="1\linewidth"}
-[\[avt2\]]{#avt2 label="avt2"}
+![Ausführen der Queue](images/avt2.png "fig:")
 
 Entfernen von Tasks
 -------------------
@@ -571,8 +551,7 @@ besitzen. Um diesen Task nun zu entfernen muss er den \"Remove selected
 task\"-Button betätigen.
 
 ![Entfernen des ersten
-Tasks](images/entfvt1.png "fig:"){width="1\linewidth"}
-[\[entfvt1\]]{#entfvt1 label="entfvt1"}
+Tasks](images/entfvt1.png "fig:")
 
 ### Entfernen aller abgeschlossenen Tasks
 
@@ -581,8 +560,7 @@ Um alle bereits abgeschlossenen Tasks zu entfernen muss der Benutzer den
 Task 1 und 3 entfernt).
 
 ![Entfernen aller abgeschlossenen
-Tasks](images/entfvt2.png "fig:"){width="1\linewidth"}
-[\[entfvt2\]]{#entfvt2 label="entfvt2"}
+Tasks](images/entfvt2.png "fig:")
 
 Speichern und Laden von Profilen
 --------------------------------
@@ -598,8 +576,7 @@ Profil mit dem ausgewählten Namen in der Datenbank gespeichert, das
 Profil zum Dropdown-Menu hinzugefügt, und automatisch ausgewählt.
 
 ![Speichern eines neuen Profils mit dem Namen \"my
-profile\"](images/svp1.png "fig:"){width="1\linewidth"} [\[svp1\]]{#svp1
-label="svp1"}
+profile\"](images/svp1.png "fig:")
 
 ### Laden von Profilen
 
@@ -609,8 +586,7 @@ er es nur noch anklicken, und alle Video- und Audioeinstellungen werden
 gemäß den Einstellungen des Profils angepasst.
 
 ![Laden des Profils
-\"IPad\"](images/lvp1.png "fig:"){width="1\linewidth"} [\[lvp1\]]{#lvp1
-label="lvp1"}
+\"IPad\"](images/lvp1.png "fig:")
 
 Startpunkte für ähnliche Projekte
 ---------------------------------
