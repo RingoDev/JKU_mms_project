@@ -133,6 +133,7 @@ public class Controller {
         profileChangedListener = (observable, oldValue, newValue) -> profileChanged();
         settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
 
+        // set path to ffmpeg according to os
         if (SystemUtils.IS_OS_LINUX) {
             ffmpeg_path = "/usr/bin/ffmpeg";
             ffprobe_path = "/usr/bin/ffprobe";
@@ -145,6 +146,7 @@ public class Controller {
             reader.close();
         }
 
+        // initialise ffmpeg
         try {
             ffmpeg = new FFmpeg(ffmpeg_path);
         } catch (IOException e) {
@@ -154,6 +156,7 @@ public class Controller {
             throw new IllegalStateException("Could not find ffmpeg required for controller");
         }
 
+        // initialise ffprobe
         try {
             ffprobe = new FFprobe(ffprobe_path);
         } catch (IOException e) {
@@ -164,6 +167,7 @@ public class Controller {
         }
         fFmpegExecutor = new FFmpegExecutor(ffmpeg, ffprobe);
 
+        // update profile options
         grabOptionsFromDB();
     }
 
@@ -189,6 +193,7 @@ public class Controller {
 
         outputPath.textProperty().addListener((observable, oldValue, newValue) -> model.currentSettings.setOutputPath(Paths.get(newValue)));
 
+        // let the user choose a file when he clicks the button "Browse" next to the video path
         inputChooser.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open Video File");
@@ -200,6 +205,7 @@ public class Controller {
             }
         });
 
+        // create a new task when the User clicks on the "add Task" button
         addTask.setOnAction(actionEvent -> {
             String filePath = inputFile.getText();
 
@@ -212,6 +218,7 @@ public class Controller {
             }
         });
 
+        // start processing the Queue when the user presses the process Queue button
         process.setOnAction(actionEvent -> {
             executeQueue = true;
             if (fFmpegExecutor == null) {
@@ -219,6 +226,7 @@ public class Controller {
             }
         });
 
+        // let the user choose an output folder if he clicks the "Browse" button next to the output path
         outputChooser.setOnAction(actionEvent -> {
             DirectoryChooser outputChooser = new DirectoryChooser();
             outputChooser.setTitle("Select Output Folder");
@@ -254,6 +262,7 @@ public class Controller {
         // same with progress column
         progressCol.setCellValueFactory(c -> c.getValue().progress);
 
+        // Start the task which is currently selected
         startSelectedTask.setOnAction(e -> {
             int idx = taskTable.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
@@ -281,7 +290,7 @@ public class Controller {
                 task.setCompletionListener((t, e1) -> {
                     if (e1 != null) {
                         Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR, "Error executing task " + task.getError().getMessage(), ButtonType.OK);
+                            Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid Settings -> Error executing task " + task.getError().getMessage(), ButtonType.OK);
                             alert.show();
                         });
                     }
@@ -298,13 +307,14 @@ public class Controller {
             }
         });
 
+        // remove the task which is currently selected (only if its not running!)
         removeSelectedTask.setOnAction(e -> {
             int idx = taskTable.getSelectionModel().getSelectedIndex();
             if (idx < 0) {
                 return;
             }
             Task t = model.tasks.get(idx);
-            if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished"))) {
+            if (!(t.progress.getValue().equalsIgnoreCase("not started") || t.progress.getValue().equalsIgnoreCase("finished") || t.progress.getValue().equalsIgnoreCase("error"))) {
                 System.out.println("Can't stop a running task");
                 return;
             }
@@ -312,6 +322,7 @@ public class Controller {
             model.tasks.remove(idx);
         });
 
+        // remove all finished tasks
         removeFinishedTasks.setOnAction(e -> {
             for (int i = 0; i < model.tasks.size(); i++) {
                 Task t = model.tasks.get(i);
@@ -322,6 +333,7 @@ public class Controller {
             }
         });
 
+        // Create a new profile from the current settings and save it to the db
         createProfile.setOnAction(event -> {
             String name = newProfileName.getText();
             if (name.isEmpty()) throw new RuntimeException("Profile name cannot be blank");
@@ -350,7 +362,6 @@ public class Controller {
             chooseProfile.getSelectionModel().selectedItemProperty().addListener(profileChangedListener);
             System.out.println("Saved profile as " + name);
         });
-
 
         // TextFormatter that only permits non-negativ Integers as Values
         UnaryOperator<TextFormatter.Change> integerFilter = change -> {
@@ -383,6 +394,9 @@ public class Controller {
         addDragAndDrop();
     }
 
+    /**
+     * Start the next task in the Queue (if it is being processed)
+     */
     private void startNextTask() {
         int next_task = 0;
         for (int i = 0; i < model.tasks.size(); i++) {
@@ -394,10 +408,12 @@ public class Controller {
             }
         }
 
+        // if there are no tasks left for processing stop the queue
         if (next_task == model.tasks.size()) {
             executeQueue = false;
         }
 
+        // if there are tasks left process the queue
         if (executeQueue) {
             Task task = model.tasks.get(next_task);
             String progress = task.progress.getValue();
@@ -408,7 +424,7 @@ public class Controller {
                 task.setCompletionListener((t, e1) -> {
                     if (e1 != null) {
                         Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR, "Error executing task " + task.getError().getMessage(), ButtonType.OK);
+                            Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid Settings -> Error executing task " + task.getError().getMessage(), ButtonType.OK);
                             alert.show();
                         });
                     }
@@ -427,6 +443,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Close the ffmpeg tasks
+     */
     public void close() {
         if (ffmpegTask != null) {
 
