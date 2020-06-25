@@ -96,7 +96,8 @@ public class Task implements Runnable {
                 Paths.get(task.fileName.getValue()).getFileName()).toString().split("\\.")[0] + "." +
                 profile.getFormat().toString().split("-")[0].strip());
 
-        // TODO: show warnings if incompatible settings are detected e.g. different output format but code is copy etc.
+        boolean copyVideo = profile.getVideoCodec().getCodecName().equals("copy");
+        boolean copyAudio = profile.getAudioCodec().getCodecName().equals("copy");
 
         if (! profile.getVideoCodec().getCodecName().equals("auto")) {
             b.setVideoCodec(profile.getVideoCodec().getCodecName());
@@ -111,29 +112,52 @@ public class Task implements Runnable {
         if (profile.getVideoFrameRate() != -1) {
             b.setVideoFrameRate(profile.getVideoFrameRate());
             System.out.println("Set video framerate to: " + profile.getVideoFrameRate());
+
+            if (copyVideo) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Video frame rate changed but Video codec\n is set to 'copy'. This setting will have no effect.", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
 
         if (profile.getVideoHeight() != -1) {
             b.setVideoHeight(profile.getVideoHeight());
             System.out.println("Set video height to: " + profile.getVideoHeight());
+
+            if (copyVideo) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Video height changed but Video codec\n is set to 'copy'. This setting will have no effect.", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
 
         if (profile.getVideoWidth() != -1) {
             b.setVideoWidth(profile.getVideoWidth());
             System.out.println("Set video width to: " + profile.getVideoWidth());
+
+            if (copyVideo) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Video width changed but video codec\n is set to 'copy'. This setting will have no effect.", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
 
         if (profile.getAudioBitRate() != -1) {
             b.setAudioBitRate(profile.getAudioBitRate());
             System.out.println("Set audio bit rate to: " + profile.getAudioBitRate());
+
+            if (copyAudio) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Audio bit rate changed but audio codec\n is set to 'copy'. This setting will have no effect.", ButtonType.OK);
+                alert.showAndWait();
+            }
         }
 
         if (profile.getAudioSampleRate() != -1) {
             b.setAudioSampleRate(profile.getAudioSampleRate());
             System.out.println("Set audio sample rate to: " + profile.getAudioSampleRate());
-        }
 
-        System.out.println("video format " + profile.getFormat().getFormatName());
+            if (copyAudio) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Audio sample rate changed but audio codec\n is set to 'copy'. This setting will have no effect.", ButtonType.OK);
+                alert.showAndWait();
+            }
+        }
 
         if (profile.removeAudio()) {
             b.disableAudio();
@@ -144,12 +168,6 @@ public class Task implements Runnable {
             b.disableSubtitle();
             System.out.println("disabled subtitles");
         }
-
-        // TODO: apply format (hint: look at formats for example -> matroska should be .mkv)
-
-        // TODO: display some warnings to the user for example:
-        // TODO: if video codec is set to copy but framerate is not -1 (e.g. the video has be re-encoded
-        //       for the framerate to be changed (same situation if video height/ width is changed etc.))
 
         task.builder.addOutput(b);
     }

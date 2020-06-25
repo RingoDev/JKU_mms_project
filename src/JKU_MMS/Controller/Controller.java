@@ -134,10 +134,6 @@ public class Controller {
         settingsChangedListener = (observable, oldValue, newValue) -> settingsChanged();
 
         if (SystemUtils.IS_OS_LINUX) {
-            // TODO: set with whereis command
-            //ProcessBuilder ffmpegWh = new ProcessBuilder("whereis", "ffmpeg");
-            //ProcessBuilder ffprobeWh = new ProcessBuilder("whereis", "ffmpeg");
-
             ffmpeg_path = "/usr/bin/ffmpeg";
             ffprobe_path = "/usr/bin/ffprobe";
             model.currentSettings.setOutputPath(Paths.get("/tmp"));
