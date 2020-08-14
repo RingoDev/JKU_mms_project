@@ -202,7 +202,7 @@ werden konnte wird eine *ConnectionFailedException* geworfen.
         throw new ConnectionFailedException("Couldn't get a Connection to the Database");
       }
 
-### Schema der Datenbank {#schema der datenbank}
+### Schema der Datenbank 
 
 Die Datenbank wurde nach diesem Schema erstellt:
 
